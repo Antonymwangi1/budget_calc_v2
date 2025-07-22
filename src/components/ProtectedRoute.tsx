@@ -3,6 +3,7 @@
 import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
+import Loader from "./Loader";
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -11,7 +12,7 @@ interface ProtectedRouteProps {
 
 export default function ProtectedRoute({
   children,
-  loadingFallback = <p>Loading...</p>,
+  loadingFallback = <Loader /> // Default loading fallback,
 }: ProtectedRouteProps) {
   const { user, loading } = useAuth();
   const router = useRouter();

@@ -6,6 +6,7 @@ import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import Link from "next/link";
+import Loader from "@/components/Loader";
 
 // Login page component
 export default function LoginPage() {
@@ -45,9 +46,7 @@ export default function LoginPage() {
   // Show loading screen if authentication is in progress or user is logged in
   if (loading || user) {
     return (
-      <div className="flex justify-center items-center h-screen">
-        Loading...
-      </div>
+      <Loader />
     );
   }
 
