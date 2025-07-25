@@ -15,7 +15,7 @@ const Navbar = () => {
           <span className="bg-blue-600 rounded-full w-8 h-8 flex items-center justify-center text-xl font-bold">
             B
           </span>
-          <h1 className="text-2xl font-semibold tracking-wide">Budget Calc</h1>
+          <h1 className="text-2xl font-semibold tracking-wide">Budget Set</h1>
         </div>
         <nav>
           <ul className="space-y-2">

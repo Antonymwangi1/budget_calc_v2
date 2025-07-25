@@ -24,6 +24,7 @@ const AddBudget = () => {
       setError("Failed to add budget. Please try again.");
     } finally {
       setLoading(false);
+      setForm({ name: "", description: "", amount: 0 }); // Reset the form
     }
   };
 

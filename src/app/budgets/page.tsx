@@ -2,29 +2,47 @@
 
 import AddBudget from "@/components/AddBudget";
 import ProtectedRoute from "@/components/ProtectedRoute";
+import axios from "axios";
+import Link from "next/link";
 import React, { useState, useEffect } from "react";
 import { FaEye, FaEdit, FaTrash } from "react-icons/fa";
 
-const budgets = [
-  {
-    title: "Desk Setup",
-    description:
-      "Budget for setting up a new desk with all the necessary equipment.",
-    total: 500,
-    remaining: 200,
-  },
-  {
-    title: "Vacation Fund",
-    description:
-      "Budget for an upcoming vacation, including travel and accommodation.",
-    total: 1500,
-    remaining: 800,
-  },
-];
+interface Budget {
+  id: string;
+  name: string;
+  description: string;
+  amount: number;
+  remaining: number;
+}
 
 export default function Budget() {
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [showModal, setShowModal] = useState<boolean>(false);
+  const [budgets, setBudgets] = useState<Budget[] | []>([]);
+
+  useEffect(() => {
+    const fetchBudgets = async () => {
+      try {
+        const response = await axios.get<{ budgets: Budget[] }>(
+          "/api/budget/get"
+        );
+        if (!response) {
+          throw new Error("Failed to fetch budgets");
+        }
+        const data = response.data;
+        setBudgets(data.budgets);
+        console.log("Fetched budgets:", data.budgets);
+      } catch (error) {
+        console.error("Error fetching budgets:", error);
+      }
+    };
+
+    fetchBudgets();
+  }, []);
+
+  const filteredBudgets = budgets.filter((budget) =>
+    budget.name.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   return (
     <ProtectedRoute>
@@ -33,7 +51,7 @@ export default function Budget() {
           <header className="mb-10">
             <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 mb-6">
               <h1 className="text-4xl font-extrabold text-blue-900 tracking-tight mb-2 md:mb-0">
-                Budgets
+                My Budgets
               </h1>
               <div className="flex gap-2 w-full md:w-auto">
                 <input
@@ -49,58 +67,44 @@ export default function Budget() {
                 </button>
               </div>
             </div>
-            <p className="text-gray-600 text-lg">
-              Manage your budgets efficiently and track your spending.
-            </p>
           </header>
           <div className="grid md:grid-cols-2 gap-8">
-            {budgets.map((budget, idx) => (
-              <div
-                key={budget.title}
-                className="bg-white rounded-3xl shadow-lg p-8 flex flex-col justify-between border border-blue-100 hover:shadow-2xl transition-transform hover:-translate-y-1"
-              >
-                <div>
+            {filteredBudgets.length > 0 ? (
+              filteredBudgets.map((budget, index) => (
+                <div
+                  key={index}
+                  className="bg-white rounded-lg shadow p-6 hover:shadow-lg transition"
+                >
                   <h2 className="text-2xl font-bold text-blue-800 mb-2">
-                    {budget.title}
+                    {budget.name}
                   </h2>
-                  <p className="text-gray-700 mb-4">{budget.description}</p>
-                  <div className="flex items-center gap-6 mb-4">
-                    <span className="text-lg font-semibold text-blue-700">
-                      Total: <span className="font-bold">${budget.total}</span>
+                  <p className="text-gray-600 mb-4">{budget.description}</p>
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-xl font-semibold text-blue-700">
+                      Amount: ${budget.amount.toFixed(2)}
                     </span>
-                    <span className="text-lg font-semibold text-green-600">
-                      Remaining:{" "}
-                      <span className="font-bold">${budget.remaining}</span>
-                    </span>
+                    <div className="flex gap-2">
+                      <Link href={`/budgets/${budget.id}`} className="text-blue-500 hover:text-blue-700">
+                        <FaEye size={25} />
+                      </Link>
+                      <button className="text-green-500 hover:text-yellow-700">
+                        <FaEdit size={23} />
+                      </button>
+                      <button className="text-red-500 hover:text-red-700">
+                        <FaTrash size={20} />
+                      </button>
+                    </div>
                   </div>
-                  <div className="w-full bg-gray-100 rounded-full h-4 mb-4 shadow-inner">
-                    <div
-                      className="bg-gradient-to-r from-blue-400 to-blue-600 h-4 rounded-full transition-all"
-                      style={{
-                        width: `${
-                          ((budget.total - budget.remaining) / budget.total) *
-                          100
-                        }%`,
-                      }}
-                    />
+                  <div className="text-sm text-gray-700">
+                    <p>Remaining: ${(0.0).toFixed(2)}</p>
                   </div>
                 </div>
-                <div className="flex gap-3 mt-4">
-                  <button className="flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-500 text-white font-medium shadow hover:bg-blue-600 transition">
-                    <FaEye className="text-lg" />
-                    View
-                  </button>
-                  <button className="flex items-center gap-2 px-4 py-2 rounded-lg bg-green-500 text-white font-medium shadow hover:bg-green-600 transition">
-                    <FaEdit className="text-lg" />
-                    Edit
-                  </button>
-                  <button className="flex items-center gap-2 px-4 py-2 rounded-lg bg-red-500 text-white font-medium shadow hover:bg-red-600 transition">
-                    <FaTrash className="text-lg" />
-                    Delete
-                  </button>
-                </div>
-              </div>
-            ))}
+              ))
+            ) : (
+              <p className="col-span-full text-center text-gray-500">
+                No budgets found.
+              </p>
+            )}
           </div>
         </div>
         {showModal && (
@@ -108,7 +112,12 @@ export default function Budget() {
             <div className="bg-white rounded-lg p-6 shadow-lg w-full max-w-md">
               <div className="flex items-center justify-between mb-4">
                 <h2 className="text-xl font-bold">Add New Budget</h2>
-                <button onClick={() => setShowModal(false)} className="bg-red-700 text-white rounded-full h-8 w-8 flex justify-center items-center font-bold">x</button>
+                <button
+                  onClick={() => setShowModal(false)}
+                  className="bg-red-700 text-white rounded-full h-8 w-8 flex justify-center items-center font-bold"
+                >
+                  x
+                </button>
               </div>
               <div>
                 <AddBudget />
