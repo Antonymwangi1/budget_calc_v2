@@ -30,8 +30,6 @@ export default function AddItem() {
   const [searchTerm, setSearchTerm] = useState<string>("");
   const { budgetId } = useParams();
 
-  const { reloadUser } = useAuth();
-
   useEffect(() => {
     if (budgetId) {
       fetchItems(budgetId as string);
@@ -47,7 +45,6 @@ export default function AddItem() {
 
       setItems(response.data.items);
       setBudget(response.data.budget);
-      await reloadUser();
     } catch (error) {
       console.error("Error fetching items:", error);
     }
