@@ -2,13 +2,60 @@
 
 import AddItems from "@/components/AddItems";
 import ProtectedRoute from "@/components/ProtectedRoute";
+import { useAuth } from "@/context/AuthContext";
+import axios from "axios";
+import { useParams } from "next/navigation";
 
 // import axios from "axios";
 // import { useRouter, useParams } from "next/navigation";
-import { useState } from "react";
+import { use, useEffect, useState } from "react";
+
+interface Items {
+  id: string;
+  name: string;
+  amount: number;
+  description: string;
+  budgetId: string;
+}
+
+interface Budget {
+  id: string;
+  name: string;
+}
 
 export default function AddItem() {
-    const [showModal, setShowModal] = useState<boolean>(false);
+  const [showModal, setShowModal] = useState<boolean>(false);
+  const [items, setItems] = useState<Items[] | []>([]);
+  const [budget, setBudget] = useState<Budget | null>(null);
+  const [searchTerm, setSearchTerm] = useState<string>("");
+  const { budgetId } = useParams();
+
+  const { reloadUser } = useAuth();
+
+  useEffect(() => {
+    if (budgetId) {
+      fetchItems(budgetId as string);
+    }
+  }, [budgetId]);
+
+  const fetchItems = async (budgetId: string) => {
+    try {
+      const response = await axios.get(`/api/items/get?budgetId=${budgetId}`);
+      if (!response || !response.data) {
+        throw new Error("Failed to fetch items");
+      }
+
+      setItems(response.data.items);
+      setBudget(response.data.budget);
+      await reloadUser();
+    } catch (error) {
+      console.error("Error fetching items:", error);
+    }
+  };
+
+  const filteredItems = items.filter((item) =>
+    item.name.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   return (
     <ProtectedRoute>
@@ -17,15 +64,20 @@ export default function AddItem() {
           <header className="mb-10">
             <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 mb-6">
               <h1 className="text-4xl font-extrabold text-blue-900 tracking-tight mb-2 md:mb-0">
-                Name of the Budget
+                {budget ? budget.name : "Budget Items"}
               </h1>
               <div className="flex gap-2 w-full md:w-auto">
                 <input
                   type="text"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
                   placeholder="Search Items..."
                   className="px-4 py-2 rounded-lg border border-blue-200 focus:outline-none focus:ring-2 focus:ring-blue-400 transition w-full md:w-48 bg-white shadow-sm"
                 />
-                <button onClick={() => setShowModal(true)} className="px-4 py-2 rounded-lg bg-gradient-to-r from-blue-500 to-blue-600 text-white font-semibold shadow hover:from-blue-600 hover:to-blue-700 transition">
+                <button
+                  onClick={() => setShowModal(true)}
+                  className="px-4 py-2 rounded-lg bg-gradient-to-r from-blue-500 to-blue-600 text-white font-semibold shadow hover:from-blue-600 hover:to-blue-700 transition"
+                >
                   + Add Items
                 </button>
               </div>
@@ -50,24 +102,35 @@ export default function AddItem() {
                 </tr>
               </thead>
               <tbody>
-                <tr className="hover:bg-blue-50 transition">
-                  <td className="px-6 py-4 border-b">Example Item</td>
-                  <td className="px-6 py-4 border-b">$100.00</td>
-                  <td className="px-6 py-4 border-b">
-                    This is an example item description.
-                  </td>
-                  <td className="px-6 py-4 border-b flex gap-2">
-                    <button className="px-3 py-1 rounded bg-blue-100 text-blue-700 hover:bg-blue-200 transition text-sm font-medium">
-                      View
-                    </button>
-                    <button className="px-3 py-1 rounded bg-yellow-100 text-yellow-700 hover:bg-yellow-200 transition text-sm font-medium">
-                      Edit
-                    </button>
-                    <button className="px-3 py-1 rounded bg-red-100 text-red-700 hover:bg-red-200 transition text-sm font-medium">
-                      Delete
-                    </button>
-                  </td>
-                </tr>
+                {filteredItems.length > 0 ? (
+                  filteredItems.map((item) => (
+                    <tr key={item.id} className="hover:bg-blue-50">
+                      <td className="px-6 py-4 border-b text-blue-800">
+                        {item.name}
+                      </td>
+                      <td className="px-6 py-4 border-b text-blue-800">
+                        ${item.amount.toFixed(2)}
+                      </td>
+                      <td className="px-6 py-4 border-b text-blue-800">
+                        {item.description}
+                      </td>
+                      <td className="px-6 py-4 border-b text-blue-800">
+                        <button className="text-blue-600 hover:text-blue-800 transition">
+                          Edit
+                        </button>
+                        <button className="ml-4 text-red-600 hover:text-red-800 transition">
+                          Delete
+                        </button>
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan={4} className="text-center px-6 py-4">
+                      No items found
+                    </td>
+                  </tr>
+                )}
               </tbody>
             </table>
           </div>
@@ -76,7 +139,9 @@ export default function AddItem() {
           <div className="fixed inset-0 bg-[rgba(0,0,0,0.91)] flex items-center justify-center z-50">
             <div className="bg-white rounded-2xl p-8 shadow-2xl w-full max-w-lg relative">
               <div className="flex items-center justify-between mb-6">
-                <h2 className="text-2xl font-extrabold text-blue-900 p-0 m-0">Add New Item</h2>
+                <h2 className="text-2xl font-extrabold text-blue-900 p-0 m-0">
+                  Add New Item
+                </h2>
                 <button
                   onClick={() => setShowModal(false)}
                   className="bg-red-600 hover:bg-red-700 text-white rounded-full h-8 w-8 flex items-center justify-center font-bold transition"
@@ -86,7 +151,13 @@ export default function AddItem() {
                 </button>
               </div>
               <div>
-                <AddItems />
+                <AddItems
+                  budgetId={budgetId as string}
+                  onItemAdded={() => {
+                    fetchItems(budgetId as string);
+                    setShowModal(false);
+                  }}
+                />
               </div>
             </div>
           </div>

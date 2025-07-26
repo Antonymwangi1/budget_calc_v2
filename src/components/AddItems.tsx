@@ -2,9 +2,15 @@ import axios from "axios";
 import { useRouter, useParams } from "next/navigation";
 import { useState } from "react";
 
-const AddItems = () => {
-  const params = useParams();
-  const budgetId = params.budgetId as string;
+const AddItems = ({
+  budgetId,
+  onItemAdded,
+}: {
+  budgetId: string;
+  onItemAdded: () => void;
+}) => {
+  // const params = useParams();
+  // const budgetId = params.budgetId as string;
 
   const [name, setName] = useState("");
   const [amount, setAmount] = useState("");
@@ -22,7 +28,7 @@ const AddItems = () => {
         description,
         budgetId,
       });
-      console.log("Item added:", response.data);
+      onItemAdded(); // Notify parent component that an item was added
       setName("");
       setAmount("");
       setDescription("N/A");
