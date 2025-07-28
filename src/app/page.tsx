@@ -3,6 +3,7 @@
 import { useState } from "react";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from "recharts";
+import Link from "next/link";
 
 type Budget = {
   id: number;
@@ -126,7 +127,11 @@ export default function Dashboard() {
                 <p></p>
               </div>
             ))}
-            <p>View All</p>
+            <p>
+              <Link href={"/budgets"} className="text-blue-600 hover:underline">
+                View all budgets
+              </Link>
+            </p>
           </div>
           {/* Chart */}
           <div className="bg-white p-8 rounded-2xl shadow-lg border border-gray-200 flex flex-col items-center">
