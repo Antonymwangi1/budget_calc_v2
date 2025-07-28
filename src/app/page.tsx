@@ -2,243 +2,171 @@
 
 import { useState } from "react";
 import ProtectedRoute from "@/components/ProtectedRoute";
-import { Line } from "react-chartjs-2";
-import { Pie } from "react-chartjs-2";
-import {
-  Chart as ChartJS,
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  ArcElement,
-  Tooltip,
-  Legend,
-} from "chart.js";
+import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from "recharts";
 
-ChartJS.register(
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  ArcElement,
-  Tooltip,
-  Legend
-);
-
-type Expense = {
+type Budget = {
   id: number;
   name: string;
-  amount: number;
-  date: string;
+  total: number;
+  spent: number;
+  expenses: { name: string; amount: number; date: string }[];
 };
 
+const COLORS = ["#3B82F6", "#10B981", "#F59E0B", "#EF4444", "#8B5CF6"];
+
 export default function Dashboard() {
-  const [income, setIncome] = useState<number>(0);
-  const [expenses, setExpenses] = useState<Expense[]>([]);
-  const [expenseName, setExpenseName] = useState<string>("");
-  const [expenseAmount, setExpenseAmount] = useState<number>(0);
+  const [budgets, setBudgets] = useState<Budget[]>([
+    {
+      id: 1,
+      name: "PC Build",
+      total: 2000,
+      spent: 500,
+      expenses: [{ name: "GPU", amount: 500, date: "2024-06-01" }],
+    },
+    {
+      id: 2,
+      name: "Home Reno",
+      total: 2500,
+      spent: 1500,
+      expenses: [
+        { name: "Paint", amount: 500, date: "2024-06-02" },
+        { name: "Flooring", amount: 1000, date: "2024-06-03" },
+      ],
+    },
+  ]);
 
-  function addExpense() {
-    if (!expenseName || expenseAmount <= 0) return;
-    setExpenses([
-      ...expenses,
-      {
-        id: Date.now(),
-        name: expenseName,
-        amount: expenseAmount,
-        date: new Date().toISOString().split("T")[0],
-      },
-    ]);
-    setExpenseName("");
-    setExpenseAmount(0);
-  }
+  const totalBudgets = budgets.length;
+  const totalSpend = budgets.reduce((sum, b) => sum + b.spent, 0);
 
-  function removeExpense(id: number) {
-    setExpenses(expenses.filter((exp) => exp.id !== id));
-  }
-
-  const sortedExpenses = [...expenses].sort(
-    (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
+  const allExpenses = budgets.flatMap((b) =>
+    b.expenses.map((e) => ({ ...e, budget: b.name }))
   );
-  const dates = sortedExpenses.map((exp) => exp.date);
-  const amounts = sortedExpenses.map((exp) => exp.amount);
 
-  const lineData = {
-    labels: dates.length ? dates : ["No data"],
-    datasets: [
-      {
-        label: "Spending Over Time",
-        data: amounts.length ? amounts : [0],
-        fill: false,
-        borderColor: "#3b82f6",
-        backgroundColor: "#3b82f6",
-        tension: 0.3,
-      },
-    ],
-  };
-
-  const top5 = [...expenses].sort((a, b) => b.amount - a.amount).slice(0, 5);
-
-  const pieData = {
-    labels: top5.length ? top5.map((exp) => exp.name) : ["No data"],
-    datasets: [
-      {
-        data: top5.length ? top5.map((exp) => exp.amount) : [1],
-        backgroundColor: [
-          "#3b82f6",
-          "#f59e42",
-          "#10b981",
-          "#ef4444",
-          "#6366f1",
-        ],
-      },
-    ],
-  };
-
-  const totalExpenses = expenses.reduce((sum, exp) => sum + exp.amount, 0);
-  const balance = income - totalExpenses;
-
-  const recentBudgets = [...expenses]
-    .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
-    .slice(0, 5);
-
-  const mostExpensive = [...expenses]
-    .sort((a, b) => b.amount - a.amount)
-    .slice(0, 3);
+  const recentExpense = allExpenses.sort(
+    (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
+  )[0];
 
   return (
     <ProtectedRoute>
-      <div className="max-w-4xl mx-auto p-6 bg-gradient-to-br from-blue-50 to-white rounded-xl shadow-lg">
-        <h1 className="text-3xl font-bold mb-6 text-blue-700">
-          My Budget Dashboard
+      <div className="max-w-5xl mx-auto mb-20 p-8 space-y-14">
+        <h1 className="text-4xl font-extrabold text-center text-blue-700 tracking-tight drop-shadow-sm">
+          Budget Dashboard
         </h1>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
-          <div>
-            <div className="mt-6">
-              <ul className="mt-4">
-                {expenses.map((exp) => (
-                  <li
-                    key={exp.id}
-                    className="flex justify-between items-center py-1 border-b last:border-b-0"
-                  >
-                    <span>
-                      {exp.name}:{" "}
-                      <span className="font-semibold">${exp.amount}</span>{" "}
-                      <span className="text-xs text-gray-500">
-                        ({exp.date})
-                      </span>
-                    </span>
-                    <button
-                      onClick={() => removeExpense(exp.id)}
-                      className="text-red-500 hover:underline"
-                    >
-                      Remove
-                    </button>
-                  </li>
-                ))}
-              </ul>
-            </div>
+        {/* Summary */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
+          <div className="bg-gradient-to-r from-blue-100 to-blue-200 rounded-2xl p-8 text-center shadow-lg border border-blue-200">
+            <p className="text-base font-medium text-blue-600 mb-2">
+              Total Budgets
+            </p>
+            <p className="text-4xl font-extrabold text-blue-800">
+              {totalBudgets}
+            </p>
           </div>
-
-          <div className="bg-white rounded-lg shadow p-4">
-            <h2 className="text-lg font-semibold mb-2 text-gray-800">
-              Summary
-            </h2>
-            <div className="space-y-2">
-              <p>
-                Income: <span className="font-semibold">${income}</span>
-              </p>
-              <p>
-                Money Used So Far:{" "}
-                <span className="font-semibold text-blue-600">
-                  ${totalExpenses}
-                </span>
-              </p>
-              <p
-                className={
-                  balance < 0
-                    ? "text-red-600 font-semibold"
-                    : "text-green-600 font-semibold"
-                }
-              >
-                Balance: ${balance}
-              </p>
-            </div>
-
-            <div className="mt-6">
-              <h3 className="font-semibold mb-2 text-gray-700">
-                Recent Budgets
-              </h3>
-              <ul className="text-sm">
-                {recentBudgets.length > 0 ? (
-                  recentBudgets.map((exp) => (
-                    <li key={exp.id} className="flex justify-between py-1">
-                      <span>{exp.name}</span>
-                      <span className="font-semibold">${exp.amount}</span>
-                    </li>
-                  ))
-                ) : (
-                  <li className="text-gray-400">No recent budgets</li>
-                )}
-              </ul>
-            </div>
-
-            <div className="mt-6">
-              <h3 className="font-semibold mb-2 text-gray-700">
-                Most Expensive Items
-              </h3>
-              <ul className="text-sm">
-                {mostExpensive.length > 0 ? (
-                  mostExpensive.map((exp) => (
-                    <li key={exp.id} className="flex justify-between py-1">
-                      <span>{exp.name}</span>
-                      <span className="font-semibold">${exp.amount}</span>
-                    </li>
-                  ))
-                ) : (
-                  <li className="text-gray-400">No expensive items</li>
-                )}
-              </ul>
-            </div>
+          <div className="bg-gradient-to-r from-green-100 to-green-200 rounded-2xl p-8 text-center shadow-lg border border-green-200">
+            <p className="text-base font-medium text-green-600 mb-2">
+              Total Spend
+            </p>
+            <p className="text-4xl font-extrabold text-green-800">
+              ${totalSpend}
+            </p>
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          <div className="bg-white rounded-lg shadow p-4">
-            <h2 className="text-lg font-semibold mb-4 text-gray-800">
-              Spending Over Time
-            </h2>
-            <Line
-              data={lineData}
-              options={{
-                responsive: true,
-                plugins: {
-                  legend: { display: false },
-                },
-                scales: {
-                  x: { title: { display: true, text: "Date" } },
-                  y: {
-                    title: { display: true, text: "Amount ($)" },
-                    beginAtZero: true,
-                  },
-                },
-              }}
-            />
-          </div>
+        {/* Recent Activity */}
+        {/* <div className="bg-gradient-to-r from-yellow-50 to-yellow-100 rounded-2xl p-8 shadow-md border border-yellow-100">
+          <h2 className="text-xl font-bold text-gray-700 mb-2 tracking-tight">
+            Recent Activity
+          </h2>
+          {recentExpense ? (
+            <p className="text-gray-800 text-base">
+              Added{" "}
+              <strong className="text-yellow-700">{recentExpense.name}</strong>{" "}
+              to{" "}
+              <strong className="text-blue-700">{recentExpense.budget}</strong>
+            </p>
+          ) : (
+            <p className="text-gray-400">No recent expenses</p>
+          )}
+        </div> */}
 
-          <div className="bg-white rounded-lg shadow p-4">
-            <h2 className="text-lg font-semibold mb-4 text-gray-800">
-              Top 5 Spending Items
+        {/* Recent Expense */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 bg-gradient-to-br from-blue-50 via-white to-indigo-100 rounded-3xl shadow-xl border border-gray-200 p-8">
+          {/* Budgets */}
+          <div className="space-y-8">
+            <h2 className="text-2xl font-bold text-gray-800 mb-2 tracking-tight">
+              Your Budgets
             </h2>
-            <Pie
-              data={pieData}
-              options={{
-                plugins: {
-                  legend: { position: "bottom" },
-                },
-              }}
-            />
+            {budgets.map((b) => (
+              <div
+                key={b.id}
+                className="bg-white rounded-2xl border border-gray-200 p-6 shadow-md flex flex-col gap-3 hover:shadow-xl transition-shadow"
+              >
+                <div className="flex justify-between items-center">
+                  <p className="text-lg font-semibold text-gray-700">
+                    {b.name}
+                  </p>
+                  <p className="text-sm text-gray-500">
+                    <span className="font-bold text-blue-600">${b.spent}</span>{" "}
+                    / <span className="text-gray-700">${b.total}</span> used
+                  </p>
+                </div>
+                <div className="w-full h-4 bg-gray-100 rounded-full overflow-hidden">
+                  <div
+                    className="h-4 bg-gradient-to-r from-blue-500 to-blue-400 rounded-full transition-all"
+                    style={{
+                      width: `${Math.min((b.spent / b.total) * 100, 100)}%`,
+                    }}
+                  />
+                </div>
+                <div className="flex justify-between text-xs text-gray-400 mt-1">
+                  <span>Spent</span>
+                  <span>Budget</span>
+                </div>
+                <p></p>
+              </div>
+            ))}
+            <p>View All</p>
+          </div>
+          {/* Chart */}
+          <div className="bg-white p-8 rounded-2xl shadow-lg border border-gray-200 flex flex-col items-center">
+            <h2 className="text-xl font-bold mb-6 text-gray-700 tracking-tight">
+              Spending Breakdown
+            </h2>
+            <ResponsiveContainer width="100%" height={260}>
+              <PieChart>
+                <Pie
+                  data={budgets}
+                  dataKey="spent"
+                  nameKey="name"
+                  outerRadius={90}
+                  label={({ name }) => name}
+                  labelLine={false}
+                >
+                  {budgets.map((_, index) => (
+                    <Cell key={index} fill={COLORS[index % COLORS.length]} />
+                  ))}
+                </Pie>
+                <Tooltip
+                  contentStyle={{
+                    borderRadius: "0.75rem",
+                    boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
+                    border: "none",
+                  }}
+                />
+              </PieChart>
+            </ResponsiveContainer>
+            <div className="flex justify-center gap-4 mt-6">
+              {budgets.map((b, idx) => (
+                <div key={b.id} className="flex items-center gap-2">
+                  <span
+                    className="inline-block w-3 h-3 rounded-full"
+                    style={{ background: COLORS[idx % COLORS.length] }}
+                  />
+                  <span className="text-sm text-gray-600">{b.name}</span>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </div>

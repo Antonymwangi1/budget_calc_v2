@@ -1,5 +1,4 @@
 import axios from "axios";
-import { useRouter, useParams } from "next/navigation";
 import { useState } from "react";
 
 const AddItems = ({
@@ -9,9 +8,6 @@ const AddItems = ({
   budgetId: string;
   onItemAdded: () => void;
 }) => {
-  // const params = useParams();
-  // const budgetId = params.budgetId as string;
-
   const [name, setName] = useState("");
   const [amount, setAmount] = useState("");
   const [description, setDescription] = useState("N/A");
@@ -22,13 +18,13 @@ const AddItems = ({
     setLoading(true);
 
     try {
-      const response = await axios.post("/api/items/add", {
+      await axios.post("/api/items/add", {
         name,
         amount,
         description,
         budgetId,
       });
-      onItemAdded(); // Notify parent component that an item was added
+      onItemAdded();
       setName("");
       setAmount("");
       setDescription("N/A");
@@ -40,16 +36,16 @@ const AddItems = ({
   };
 
   return (
-    <div>
+    <div className="flex justify-center items-center min-h-[60vh] bg-gradient-to-br from-blue-50 via-white to-blue-100">
       <form
         onSubmit={handleSubmit}
-        className="max-w-md mx-auto bg-white rounded-xl shadow-lg p-8 space-y-6"
+        className="w-full max-w-lg bg-white/90 backdrop-blur-md rounded-2xl shadow-2xl p-4 space-y-8 border border-blue-100"
       >
-        <h2 className="text-2xl font-bold text-gray-800 mb-4 text-center">
+        <h2 className="text-3xl font-extrabold text-blue-700 mb-6 text-center tracking-tight">
           Add Budget Item
         </h2>
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label className="block text-sm font-semibold text-blue-600 mb-2">
             Item Name
           </label>
           <input
@@ -58,11 +54,11 @@ const AddItems = ({
             value={name}
             onChange={(e) => setName(e.target.value)}
             required
-            className="border border-gray-300 rounded-lg p-3 w-full focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+            className="border border-blue-200 rounded-xl p-3 w-full focus:outline-none focus:ring-2 focus:ring-blue-400 transition shadow-sm bg-blue-50 placeholder:text-blue-300"
           />
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label className="block text-sm font-semibold text-blue-600 mb-2">
             Amount
           </label>
           <input
@@ -73,11 +69,11 @@ const AddItems = ({
             min={0}
             onChange={(e) => setAmount(e.target.value)}
             required
-            className="border border-gray-300 rounded-lg p-3 w-full focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+            className="border border-blue-200 rounded-xl p-3 w-full focus:outline-none focus:ring-2 focus:ring-blue-400 transition shadow-sm bg-blue-50 placeholder:text-blue-300"
           />
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label className="block text-sm font-semibold text-blue-600 mb-2">
             Description
           </label>
           <textarea
@@ -85,14 +81,17 @@ const AddItems = ({
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             required
-            className="border border-gray-300 rounded-lg p-3 w-full h-24 resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+            className="border border-blue-200 rounded-xl p-3 w-full h-24 resize-none focus:outline-none focus:ring-2 focus:ring-blue-400 transition shadow-sm bg-blue-50 placeholder:text-blue-300"
           />
         </div>
         <button
           type="submit"
-          className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-3 rounded-lg shadow transition"
+          disabled={loading}
+          className={`w-full bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600 text-white font-bold px-4 py-3 rounded-xl shadow-lg transition ${
+            loading ? "opacity-60 cursor-not-allowed" : ""
+          }`}
         >
-          Add Item
+          {loading ? "Adding..." : "Add Item"}
         </button>
       </form>
     </div>

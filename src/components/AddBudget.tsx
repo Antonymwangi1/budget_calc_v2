@@ -24,15 +24,18 @@ const AddBudget = () => {
       setError("Failed to add budget. Please try again.");
     } finally {
       setLoading(false);
-      setForm({ name: "", description: "", amount: 0 }); // Reset the form
+      setForm({ name: "", description: "", amount: 0 });
     }
   };
 
   return (
-    <div>
-      <form className="space-y-4" onSubmit={handleSubmit}>
-        <div className="form-group">
-          <label htmlFor="title" className="text-lg text-gray-600">
+    <div className="max-w-md mx-auto mt-10 bg-white shadow-xl rounded-2xl p-8 border border-gray-100">
+      <h2 className="text-2xl font-bold text-gray-800 mb-6 text-center">
+        Add New Budget
+      </h2>
+      <form className="space-y-6" onSubmit={handleSubmit}>
+        <div>
+          <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-1">
             Title
           </label>
           <input
@@ -43,11 +46,11 @@ const AddBudget = () => {
             required
             autoFocus
             placeholder="Budget Title"
-            className="border border-gray-400 px-3 py-2 w-full rounded mt-1"
+            className="block w-full rounded-lg border border-gray-300 focus:border-blue-500 focus:ring-blue-500 px-4 py-2 text-gray-900 bg-gray-50 transition"
           />
         </div>
-        <div className="form-group">
-          <label htmlFor="description" className="text-lg text-gray-600">
+        <div>
+          <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-1">
             Description
           </label>
           <textarea
@@ -58,11 +61,11 @@ const AddBudget = () => {
             rows={3}
             autoComplete="off"
             placeholder="Budget Description"
-            className="border border-gray-400 px-3 py-2 w-full rounded mt-1"
+            className="block w-full rounded-lg border border-gray-300 focus:border-blue-500 focus:ring-blue-500 px-4 py-2 text-gray-900 bg-gray-50 transition"
           />
         </div>
-        <div className="form-group">
-          <label htmlFor="total" className="text-lg text-gray-600">
+        <div>
+          <label htmlFor="total" className="block text-sm font-medium text-gray-700 mb-1">
             Total Amount
           </label>
           <input
@@ -75,18 +78,27 @@ const AddBudget = () => {
             autoComplete="off"
             name="amount"
             placeholder="Total Amount"
-            className="border border-gray-400 px-3 py-2 w-full rounded mt-1"
+            className="block w-full rounded-lg border border-gray-300 focus:border-blue-500 focus:ring-blue-500 px-4 py-2 text-gray-900 bg-gray-50 transition"
           />
         </div>
         <button
           type="submit"
-          className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition w-full"
+          className="w-full bg-gradient-to-r from-blue-600 to-blue-500 text-white font-semibold px-4 py-2 rounded-lg shadow hover:from-blue-700 hover:to-blue-600 transition disabled:opacity-60"
+          disabled={loading}
         >
-          {loading ? "Adding..." : "Add Budget"}
+          {loading ? (
+            <span className="flex items-center justify-center gap-2">
+              <svg className="animate-spin h-5 w-5 text-white" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none"/>
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/>
+              </svg>
+              Adding...
+            </span>
+          ) : "Add Budget"}
         </button>
       </form>
       {error && (
-        <div className="mt-4 text-red-600">
+        <div className="mt-6 bg-red-50 border border-red-200 text-red-700 rounded-lg px-4 py-3 text-center">
           <p>{error}</p>
         </div>
       )}

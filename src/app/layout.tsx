@@ -11,7 +11,7 @@ function LayoutInner({ children }: { children: React.ReactNode }) {
     <main className="flex h-screen">
       {!loading && user && <Navbar />}
       
-      <div className="main-container flex-1 p-6 overflow-auto bg-gradient-to-br from-gray-50 to-blue-100">
+      <div className="main-container flex-1 p-6 overflow-auto">
         {children}
       </div>
     </main>

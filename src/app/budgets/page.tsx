@@ -46,62 +46,82 @@ export default function Budget() {
 
   return (
     <ProtectedRoute>
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-blue-100 to-blue-200 p-8">
-        <div className="max-w-4xl mx-auto">
-          <header className="mb-10">
-            <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 mb-6">
-              <h1 className="text-4xl font-extrabold text-blue-900 tracking-tight mb-2 md:mb-0">
+      <div className="min-h-screen p-8">
+        <div className="max-w-5xl mx-auto">
+          <header className="mb-12">
+            <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6 mb-8">
+              <h1 className="text-5xl font-extrabold text-gray-600 tracking-tight mb-2 md:mb-0 drop-shadow-lg">
                 My Budgets
               </h1>
-              <div className="flex gap-2 w-full md:w-auto">
+              <div className="flex gap-3 w-full md:w-auto">
                 <input
                   type="text"
+                  value={searchTerm}
+                  onChange={e => setSearchTerm(e.target.value)}
                   placeholder="Search budgets..."
-                  className="px-4 py-2 rounded-lg border border-blue-200 focus:outline-none focus:ring-2 focus:ring-blue-400 transition w-full md:w-48 bg-white shadow-sm"
+                  className="px-5 py-3 rounded-xl border border-blue-200 focus:outline-none focus:ring-2 focus:ring-blue-400 transition w-full md:w-56 bg-white shadow-md text-lg"
                 />
                 <button
                   onClick={() => setShowModal(true)}
-                  className="px-4 py-2 rounded-lg bg-gradient-to-r from-blue-500 to-blue-600 text-white font-semibold shadow hover:from-blue-600 hover:to-blue-700 transition"
+                  className="px-5 py-3 rounded-xl bg-gradient-to-r from-blue-500 to-blue-700 text-white font-bold shadow-lg hover:from-blue-600 hover:to-blue-800 transition text-lg"
                 >
                   + Add Budget
                 </button>
               </div>
             </div>
           </header>
-          <div className="grid md:grid-cols-2 gap-8">
+          <div className="grid md:grid-cols-2 gap-10">
             {filteredBudgets.length > 0 ? (
-              filteredBudgets.map((budget, index) => (
+              filteredBudgets.map((budget) => (
                 <div
-                  key={index}
-                  className="bg-white rounded-lg shadow p-6 hover:shadow-lg transition"
+                  key={budget.id}
+                  className="bg-white p-8 hover:shadow-2xl transition group rounded-2xl border border-gray-200 shadow-md"
                 >
-                  <h2 className="text-2xl font-bold text-blue-800 mb-2">
-                    {budget.name}
-                  </h2>
-                  <p className="text-gray-600 mb-4">{budget.description}</p>
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-xl font-semibold text-blue-700">
-                      Amount: ${budget.amount.toFixed(2)}
-                    </span>
-                    <div className="flex gap-2">
-                      <Link href={`/budgets/${budget.id}`} className="text-blue-500 hover:text-blue-700">
-                        <FaEye size={25} />
+                  <div className="flex items-center justify-between mb-4">
+                    <h2 className="text-2xl font-bold text-blue-800 group-hover:text-blue-900 transition">
+                      {budget.name}
+                    </h2>
+                    <div className="flex gap-3">
+                      <Link href={`/budgets/${budget.id}`} className="text-blue-500 hover:text-blue-700 transition">
+                        <FaEye size={26} />
                       </Link>
-                      <button className="text-green-500 hover:text-yellow-700">
-                        <FaEdit size={23} />
+                      <button className="text-green-500 hover:text-yellow-700 transition">
+                        <FaEdit size={24} />
                       </button>
-                      <button className="text-red-500 hover:text-red-700">
-                        <FaTrash size={20} />
+                      <button className="text-red-500 hover:text-red-700 transition">
+                        <FaTrash size={21} />
                       </button>
                     </div>
                   </div>
-                  <div className="text-sm text-gray-700">
-                    <p>Remaining: ${(0.0).toFixed(2)}</p>
+                  <p className="text-gray-600 mb-6 text-lg">{budget.description}</p>
+                  <div className="flex items-center justify-between mb-4">
+                    <span className="text-xl font-semibold text-blue-700 bg-blue-50 px-3 py-1 rounded-lg">
+                      Amount: ${budget.amount.toFixed(2)}
+                    </span>
+                    <span className="text-sm font-medium text-gray-500 bg-gray-100 px-2 py-1 rounded-lg">
+                      Remaining: $0
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="w-full bg-gray-200 rounded-full h-3">
+                      <div
+                        className="bg-blue-500 h-3 rounded-full transition-all"
+                        style={{
+                          width: `${Math.min(
+                            (budget.remaining / budget.amount) * 100,
+                            100
+                          )}%`,
+                        }}
+                      />
+                    </div>
+                    <span className="text-xs text-gray-400">
+                      {Math.round((budget.remaining / budget.amount) * 100)}%
+                    </span>
                   </div>
                 </div>
               ))
             ) : (
-              <p className="col-span-full text-center text-gray-500">
+              <p className="col-span-full text-center text-gray-500 text-lg">
                 No budgets found.
               </p>
             )}
@@ -109,14 +129,14 @@ export default function Budget() {
         </div>
         {showModal && (
           <div className="fixed inset-0 bg-[rgba(0,0,0,0.91)] flex items-center justify-center z-50">
-            <div className="bg-white rounded-lg p-6 shadow-lg w-full max-w-md">
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="text-xl font-bold">Add New Budget</h2>
+            <div className="bg-white rounded-2xl p-8 shadow-2xl w-full max-w-lg border border-blue-100">
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-2xl font-bold text-blue-800">Add New Budget</h2>
                 <button
                   onClick={() => setShowModal(false)}
-                  className="bg-red-700 text-white rounded-full h-8 w-8 flex justify-center items-center font-bold"
+                  className="bg-red-700 text-white rounded-full h-9 w-9 flex justify-center items-center font-bold text-xl shadow hover:bg-red-800 transition"
                 >
-                  x
+                  ×
                 </button>
               </div>
               <div>
