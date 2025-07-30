@@ -48,15 +48,62 @@ const Navbar = () => {
             </li>
           </ul>
         </nav>
-        <div className="mt-auto pt-8">
-          <p>{user?.name}</p>
-          <button
-            onClick={logout}
-            className="flex items-center px-4 py-3 rounded-lg text-red-400 hover:bg-gray-700 hover:text-red-500 transition-colors"
-          >
-            <PiSignOutFill className="mr-3 text-lg" />
-            <span className="font-medium">Logout</span>
-          </button>
+        <div className="mt-auto pt-8 relative">
+          <div className="group inline-block w-full">
+            <button className="w-full flex items-center justify-between px-4 py-3 rounded-lg bg-gray-700 hover:bg-gray-600 transition-colors focus:outline-none">
+              <span className="font-medium">{user?.name || "Account"}</span>
+              <svg
+                className="ml-2 w-4 h-4"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M5 15l7-7 7 7"
+                />
+              </svg>
+            </button>
+            <div className="absolute left-0 -top-38 w-full mt-2 bg-gray-800 rounded-lg shadow-lg opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 pointer-events-none group-hover:pointer-events-auto group-focus-within:pointer-events-auto transition-opacity z-10">
+              <ul className="py-2">
+                <li>
+                  <Link
+                    href="/settings"
+                    className="block px-4 py-2 hover:bg-gray-700 transition-colors"
+                  >
+                    Settings
+                  </Link>
+                </li>
+                <li>
+                  <button
+                    className="block w-full text-left px-4 py-2 hover:bg-gray-700 transition-colors"
+                    // Implement your theme change logic here
+                    onClick={() => alert("Theme change coming soon!")}
+                  >
+                    Change Theme
+                  </button>
+                </li>
+                <li>
+                  <Link
+                    href="/settings"
+                    className="block px-4 py-2 hover:bg-gray-700 transition-colors"
+                  >
+                    Settings
+                  </Link>
+                </li>
+                <li>
+                  <button
+                    className="block w-full text-left px-4 py-2 hover:bg-gray-700 transition-colors text-red-400"
+                    onClick={logout}
+                  >
+                    Logout
+                  </button>
+                </li>
+              </ul>
+            </div>
+          </div>
         </div>
       </div>
     </aside>

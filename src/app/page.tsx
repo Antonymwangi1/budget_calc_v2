@@ -13,7 +13,7 @@ type Budget = {
   expenses: { name: string; amount: number; date: string }[];
 };
 
-const COLORS = ["#3B82F6", "#10B981", "#F59E0B", "#EF4444", "#8B5CF6"];
+const COLORS = ["#028090", "#114B5F", "#456990", "#F45B69", "#8B5CF6"];
 
 export default function Dashboard() {
   const [budgets, setBudgets] = useState<Budget[]>([
@@ -57,18 +57,18 @@ export default function Dashboard() {
         {/* Summary */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
           <div className="bg-gradient-to-r from-blue-100 to-blue-200 rounded-2xl p-8 text-center shadow-lg border border-blue-200">
-            <p className="text-base font-medium text-blue-600 mb-2">
+            <p className="text-base font-medium text-gray-600 mb-2">
               Total Budgets
             </p>
-            <p className="text-4xl font-extrabold text-blue-800">
+            <p className="text-4xl font-extrabold text-gray-800">
               {totalBudgets}
             </p>
           </div>
-          <div className="bg-gradient-to-r from-green-100 to-green-200 rounded-2xl p-8 text-center shadow-lg border border-green-200">
-            <p className="text-base font-medium text-green-600 mb-2">
+          <div className="bg-gradient-to-r from-teal-400 to-teal-500 rounded-2xl p-8 text-center shadow-lg border border-green-200">
+            <p className="text-base font-medium text-gray-600 mb-2">
               Total Spend
             </p>
-            <p className="text-4xl font-extrabold text-green-800">
+            <p className="text-4xl font-extrabold text-gray-800">
               ${totalSpend}
             </p>
           </div>
@@ -114,7 +114,7 @@ export default function Dashboard() {
                 </div>
                 <div className="w-full h-4 bg-gray-100 rounded-full overflow-hidden">
                   <div
-                    className="h-4 bg-gradient-to-r from-blue-500 to-blue-400 rounded-full transition-all"
+                    className="h-4 bg-gradient-to-r from-teal-600 to-teal-500 rounded-full transition-all"
                     style={{
                       width: `${Math.min((b.spent / b.total) * 100, 100)}%`,
                     }}

@@ -16,7 +16,7 @@ model User {
   updatedAt DateTime  @updatedAt
   budgets   Budget[]
   sessions  Session[]
-  items      Items[]
+  items     Items[]
 }
 
 model Session {
@@ -24,7 +24,7 @@ model Session {
   userId    String
   user      User     @relation(fields: [userId], references: [id])
   createdAt DateTime @default(now())
-  expireAt DateTime
+  expireAt  DateTime
 }
 
 model Budget {
@@ -40,14 +40,14 @@ model Budget {
 }
 
 model Items {
-  id          String   @id @default(cuid())
-  name        String
-  description String?
-  amount      Float
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  budgetId    String
-  budget      Budget   @relation(fields: [budgetId], references: [id])
-  userId      String
-  user        User     @relation(fields: [userId], references: [id])
-} 
+  id        String   @id @default(cuid())
+  name      String
+  quantity  Int
+  amount    Float
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  budgetId  String
+  budget    Budget   @relation(fields: [budgetId], references: [id])
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+}

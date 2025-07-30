@@ -2,10 +2,12 @@
 
 body {
   overflow: hidden;
+  background-color: #f8fafc;
+  font-family: "Josefin Sans", sans-serif;
 }
 .navbar li {
-  font-size: 1.125rem; /* 18px */
-  font-weight: 500; /* Medium */
+  font-size: 1.125rem; 
+  font-weight: 500; 
 }
 
 button {

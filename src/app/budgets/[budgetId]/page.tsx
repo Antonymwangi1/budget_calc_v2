@@ -4,17 +4,19 @@ import AddItems from "@/components/AddItems";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import { useAuth } from "@/context/AuthContext";
 import axios from "axios";
+import Link from "next/link";
 import { useParams } from "next/navigation";
 
 // import axios from "axios";
 // import { useRouter, useParams } from "next/navigation";
 import { use, useEffect, useState } from "react";
+import { FaArrowLeft } from "react-icons/fa";
 
 interface Items {
   id: string;
   name: string;
   amount: number;
-  description: string;
+  quantity: number;
   budgetId: string;
 }
 
@@ -56,12 +58,14 @@ export default function AddItem() {
 
   return (
     <ProtectedRoute>
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-blue-100 to-blue-200 p-8">
+      <div className="min-h-screen bg-gradient-to-r from-blue-50 to-blue-100 p-8 shadow-2xl rounded-2xl">
         <div className="max-w-4xl mx-auto">
           <header className="mb-10">
             <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 mb-6">
-              <h1 className="text-4xl font-extrabold text-blue-900 tracking-tight mb-2 md:mb-0">
-                {budget ? budget.name : "Budget Items"}
+              <h1 className="text-2xl p-0 m-0 border-b-2 font-bold text-teal-900 tracking-tight mb-2 md:mb-0">
+                <Link href={`/budgets`} className="hover:text-blue-800 transition py-2">
+                  {budget ? budget.name : "Budget Items"}
+                </Link>
               </h1>
               <div className="flex gap-2 w-full md:w-auto">
                 <input
@@ -81,55 +85,73 @@ export default function AddItem() {
             </div>
           </header>
           <div className="overflow-x-auto">
-            <table className="min-w-full bg-white shadow-lg rounded-lg overflow-hidden">
-              <thead className="bg-blue-100">
-                <tr>
-                  <th className="px-6 py-3 text-left text-xs font-semibold text-blue-800 uppercase tracking-wider border-b">
-                    Item Name
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-semibold text-blue-800 uppercase tracking-wider border-b">
-                    Amount
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-semibold text-blue-800 uppercase tracking-wider border-b">
-                    Description
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-semibold text-blue-800 uppercase tracking-wider border-b">
-                    Actions
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredItems.length > 0 ? (
-                  filteredItems.map((item) => (
-                    <tr key={item.id} className="hover:bg-blue-50">
-                      <td className="px-6 py-4 border-b text-blue-800">
-                        {item.name}
-                      </td>
-                      <td className="px-6 py-4 border-b text-blue-800">
-                        ${item.amount.toFixed(2)}
-                      </td>
-                      <td className="px-6 py-4 border-b text-blue-800">
-                        {item.description}
-                      </td>
-                      <td className="px-6 py-4 border-b text-blue-800">
-                        <button className="text-blue-600 hover:text-blue-800 transition">
-                          Edit
-                        </button>
-                        <button className="ml-4 text-red-600 hover:text-red-800 transition">
-                          Delete
-                        </button>
+            <div className="w-full overflow-x-auto rounded-xl shadow-lg bg-white">
+              <table className="min-w-full divide-y divide-blue-100">
+                <thead className="bg-gradient-to-r from-blue-100 to-blue-200">
+                  <tr>
+                    <th className="px-6 py-3 text-left text-xs font-bold text-blue-900 uppercase tracking-wider">#</th>
+                    <th className="px-6 py-3 text-left text-xs font-bold text-blue-900 uppercase tracking-wider">
+                      Item Name
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-bold text-blue-900 uppercase tracking-wider">
+                      Amount
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-bold text-blue-900 uppercase tracking-wider">
+                      Quantity
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-bold text-blue-900 uppercase tracking-wider">
+                      Total
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-bold text-blue-900 uppercase tracking-wider">
+                      Actions
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="bg-white divide-y divide-blue-50">
+                  {filteredItems.length > 0 ? (
+                    filteredItems.map((item, idx) => (
+                      <tr
+                        key={item.id}
+                        className="hover:bg-blue-50 transition-colors duration-200"
+                      >
+                        <td className="px-6 py-4 whitespace-nowrap font-extrabold">
+                          {idx + 1}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap font-medium">
+                          {item.name}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          ${item.amount.toFixed(2)}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          {item.quantity}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          ${(item.amount * item.quantity).toFixed(2)}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap flex gap-2">
+                          <button className="px-3 py-1 rounded-md bg-blue-100 text-blue-700 hover:bg-blue-200 transition text-sm font-semibold shadow-sm">
+                            Edit
+                          </button>
+                          <button className="px-3 py-1 rounded-md bg-red-100 text-red-700 hover:bg-red-200 transition text-sm font-semibold shadow-sm">
+                            Delete
+                          </button>
+                        </td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr>
+                      <td
+                        colSpan={5}
+                        className="text-center px-6 py-8 text-blue-400 font-semibold"
+                      >
+                        No items found
                       </td>
                     </tr>
-                  ))
-                ) : (
-                  <tr>
-                    <td colSpan={4} className="text-center px-6 py-4">
-                      No items found
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
+                  )}
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
         {showModal && (

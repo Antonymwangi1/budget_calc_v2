@@ -10,7 +10,7 @@ const AddItems = ({
 }) => {
   const [name, setName] = useState("");
   const [amount, setAmount] = useState("");
-  const [description, setDescription] = useState("N/A");
+  const [quantity, setQuantity] = useState("");
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -21,13 +21,13 @@ const AddItems = ({
       await axios.post("/api/items/add", {
         name,
         amount,
-        description,
+        quantity: parseInt(quantity, 10) || 1,
         budgetId,
       });
       onItemAdded();
       setName("");
       setAmount("");
-      setDescription("N/A");
+      setQuantity("");
     } catch (error) {
       console.error("Error adding item:", error);
     } finally {
@@ -41,11 +41,8 @@ const AddItems = ({
         onSubmit={handleSubmit}
         className="w-full max-w-lg bg-white/90 backdrop-blur-md rounded-2xl shadow-2xl p-4 space-y-8 border border-blue-100"
       >
-        <h2 className="text-3xl font-extrabold text-blue-700 mb-6 text-center tracking-tight">
-          Add Budget Item
-        </h2>
         <div>
-          <label className="block text-sm font-semibold text-blue-600 mb-2">
+          <label className="block text-sm text-gray-700 font-semibold mb-2">
             Item Name
           </label>
           <input
@@ -58,7 +55,7 @@ const AddItems = ({
           />
         </div>
         <div>
-          <label className="block text-sm font-semibold text-blue-600 mb-2">
+          <label className="block text-sm font-semibold text-gray-700 mb-2">
             Amount
           </label>
           <input
@@ -73,15 +70,15 @@ const AddItems = ({
           />
         </div>
         <div>
-          <label className="block text-sm font-semibold text-blue-600 mb-2">
-            Description
+          <label className="block text-sm text-gray-700 font-semibold mb-2">
+            Quantity
           </label>
-          <textarea
-            placeholder="Description"
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            required
-            className="border border-blue-200 rounded-xl p-3 w-full h-24 resize-none focus:outline-none focus:ring-2 focus:ring-blue-400 transition shadow-sm bg-blue-50 placeholder:text-blue-300"
+          <input
+            type="number"
+            placeholder="Quantity"
+            value={quantity}
+            onChange={(e) => setQuantity(e.target.value)}
+            className="border border-blue-200 rounded-xl p-3 w-full focus:outline-none focus:ring-2 focus:ring-blue-400 transition shadow-sm bg-blue-50 placeholder:text-blue-300"
           />
         </div>
         <button

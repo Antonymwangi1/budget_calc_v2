@@ -4,10 +4,10 @@ import prisma from "@/lib/prisma";
 
 export async function POST(request: Request) {
   try {
-    const { name, amount, description, budgetId } = await request.json();
+    const { name, amount, quantity, budgetId } = await request.json();
 
     // Validate required fields
-    if (!name || !amount || !description) {
+    if (!name || !amount || !quantity) {
       return NextResponse.json("Missing required fields", { status: 400 });
     }
 
@@ -43,7 +43,7 @@ export async function POST(request: Request) {
       data: {
         name,
         amount: parseFloat(amount),
-        description,
+        quantity: parseInt(quantity, 10),
         budgetId,
         userId,
       },
