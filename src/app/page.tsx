@@ -1,51 +1,82 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from "recharts";
 import Link from "next/link";
+import axios from "axios";
 
 type Budget = {
-  id: number;
+  id: string; // was number before
   name: string;
-  total: number;
-  spent: number;
-  expenses: { name: string; amount: number; date: string }[];
+  amount: number;
+};
+
+type Expenses = {
+  id: string;
+  name: string;
+  quantity: number;
+  amount: number;
+  budgetId: string; // was number before
 };
 
 const COLORS = ["#028090", "#114B5F", "#456990", "#F45B69", "#8B5CF6"];
 
 export default function Dashboard() {
-  const [budgets, setBudgets] = useState<Budget[]>([
-    {
-      id: 1,
-      name: "PC Build",
-      total: 2000,
-      spent: 500,
-      expenses: [{ name: "GPU", amount: 500, date: "2024-06-01" }],
-    },
-    {
-      id: 2,
-      name: "Home Reno",
-      total: 2500,
-      spent: 1500,
-      expenses: [
-        { name: "Paint", amount: 500, date: "2024-06-02" },
-        { name: "Flooring", amount: 1000, date: "2024-06-03" },
-      ],
-    },
-  ]);
+  const [budgets, setBudgets] = useState<Budget[]>([]);
+  const [expenses, setExpenses] = useState<Expenses[]>([]);
+
+  useEffect(() => {
+    fetchBudgets();
+  }, []);
+
+  useEffect(() => {
+    if (budgets.length > 0) {
+      fetchExpenses(budgets.map((b) => b.id)); // string[]
+    }
+  }, [budgets]);
+
+  const fetchBudgets = async () => {
+    try {
+      const response = await axios.get<{ budgets: Budget[] }>(
+        "/api/budget/get"
+      );
+      if (!response) throw new Error("Failed to fetch budgets");
+      setBudgets(response.data.budgets);
+    } catch (error) {
+      console.error("Error fetching budgets:", error);
+    }
+  };
+
+  const fetchExpenses = async (budgetIds: string[]) => {
+    try {
+      const query = budgetIds.join(",");
+      const response = await axios.get(`/api/items/get?budgetId=${query}`);
+      console.log("Raw response:", response.data);
+
+      const expensesArray = Array.isArray(response.data)
+        ? response.data
+        : response.data.items; // <- changed to match your backend `items` key
+
+      setExpenses(expensesArray);
+    } catch (error) {
+      console.error("Error fetching expenses:", error);
+    }
+  };
 
   const totalBudgets = budgets.length;
-  const totalSpend = budgets.reduce((sum, b) => sum + b.spent, 0);
+  const totalSpend = budgets.reduce((sum, e) => sum + e.amount, 0);
 
-  const allExpenses = budgets.flatMap((b) =>
-    b.expenses.map((e) => ({ ...e, budget: b.name }))
-  );
-
-  const recentExpense = allExpenses.sort(
-    (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
-  )[0];
+  // Combine budget and its total spent
+  const budgetWithSpending = budgets.map((budget) => {
+    const spent = (expenses ?? [])
+      .filter((expense) => expense.budgetId === budget.id)
+      .reduce((sum, e) => sum + e.amount, 0);
+    return {
+      ...budget,
+      spent,
+    };
+  });
 
   return (
     <ProtectedRoute>
@@ -74,31 +105,14 @@ export default function Dashboard() {
           </div>
         </div>
 
-        {/* Recent Activity */}
-        {/* <div className="bg-gradient-to-r from-yellow-50 to-yellow-100 rounded-2xl p-8 shadow-md border border-yellow-100">
-          <h2 className="text-xl font-bold text-gray-700 mb-2 tracking-tight">
-            Recent Activity
-          </h2>
-          {recentExpense ? (
-            <p className="text-gray-800 text-base">
-              Added{" "}
-              <strong className="text-yellow-700">{recentExpense.name}</strong>{" "}
-              to{" "}
-              <strong className="text-blue-700">{recentExpense.budget}</strong>
-            </p>
-          ) : (
-            <p className="text-gray-400">No recent expenses</p>
-          )}
-        </div> */}
-
-        {/* Recent Expense */}
+        {/* Budgets and Chart */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 bg-gradient-to-br from-blue-50 via-white to-indigo-100 rounded-3xl shadow-xl border border-gray-200 p-8">
           {/* Budgets */}
           <div className="space-y-8">
             <h2 className="text-2xl font-bold text-gray-800 mb-2 tracking-tight">
               Your Budgets
             </h2>
-            {budgets.map((b) => (
+            {budgetWithSpending.slice(0, 2).map((b) => (
               <div
                 key={b.id}
                 className="bg-white rounded-2xl border border-gray-200 p-6 shadow-md flex flex-col gap-3 hover:shadow-xl transition-shadow"
@@ -109,14 +123,14 @@ export default function Dashboard() {
                   </p>
                   <p className="text-sm text-gray-500">
                     <span className="font-bold text-blue-600">${b.spent}</span>{" "}
-                    / <span className="text-gray-700">${b.total}</span> used
+                    / <span className="text-gray-700">${b.amount}</span> used
                   </p>
                 </div>
                 <div className="w-full h-4 bg-gray-100 rounded-full overflow-hidden">
                   <div
                     className="h-4 bg-gradient-to-r from-teal-600 to-teal-500 rounded-full transition-all"
                     style={{
-                      width: `${Math.min((b.spent / b.total) * 100, 100)}%`,
+                      width: `${Math.min((b.spent / b.amount) * 100, 100)}%`,
                     }}
                   />
                 </div>
@@ -124,45 +138,49 @@ export default function Dashboard() {
                   <span>Spent</span>
                   <span>Budget</span>
                 </div>
-                <p></p>
               </div>
             ))}
             <p>
-              <Link href={"/budgets"} className="text-blue-600 hover:underline">
+              <Link href="/budgets" className="text-blue-600 hover:underline">
                 View all budgets
               </Link>
             </p>
           </div>
-          {/* Chart */}
+
+          {/* Pie Chart */}
           <div className="bg-white p-8 rounded-2xl shadow-lg border border-gray-200 flex flex-col items-center">
             <h2 className="text-xl font-bold mb-6 text-gray-700 tracking-tight">
               Spending Breakdown
             </h2>
-            <ResponsiveContainer width="100%" height={260}>
-              <PieChart>
-                <Pie
-                  data={budgets}
-                  dataKey="spent"
-                  nameKey="name"
-                  outerRadius={90}
-                  label={({ name }) => name}
-                  labelLine={false}
-                >
-                  {budgets.map((_, index) => (
-                    <Cell key={index} fill={COLORS[index % COLORS.length]} />
-                  ))}
-                </Pie>
-                <Tooltip
-                  contentStyle={{
-                    borderRadius: "0.75rem",
-                    boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
-                    border: "none",
-                  }}
-                />
-              </PieChart>
-            </ResponsiveContainer>
-            <div className="flex justify-center gap-4 mt-6">
-              {budgets.map((b, idx) => (
+            {budgetWithSpending.length === 0 || totalSpend === 0 ? (
+              <p className="text-gray-400">No data to display</p>
+            ) : (
+              <ResponsiveContainer width="100%" height={260}>
+                <PieChart>
+                  <Pie
+                    data={budgetWithSpending}
+                    dataKey="spent"
+                    nameKey="name"
+                    outerRadius={90}
+                    label={({ name }) => name}
+                    labelLine={false}
+                  >
+                    {budgetWithSpending.map((_, index) => (
+                      <Cell key={index} fill={COLORS[index % COLORS.length]} />
+                    ))}
+                  </Pie>
+                  <Tooltip
+                    contentStyle={{
+                      borderRadius: "0.75rem",
+                      boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
+                      border: "none",
+                    }}
+                  />
+                </PieChart>
+              </ResponsiveContainer>
+            )}
+            <div className="flex flex-wrap justify-center gap-4 mt-6">
+              {budgetWithSpending.map((b, idx) => (
                 <div key={b.id} className="flex items-center gap-2">
                   <span
                     className="inline-block w-3 h-3 rounded-full"

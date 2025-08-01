@@ -21,34 +21,39 @@ export async function GET(request: Request) {
 
     // get budgetId from query parameters
     const { searchParams } = new URL(request.url);
-    const budgetId = searchParams.get("budgetId");
+    const budgetIdParam = searchParams.get("budgetId");
 
-    if (!budgetId) {
+    if (!budgetIdParam) {
       return NextResponse.json("Missing budgetId", { status: 400 });
     }
 
-    // Fetch items by userId and budgetId
+    // handle multiple budgetIds
+    const budgetIds = budgetIdParam
+      .split(",")
+      .map((id) => id.trim())
+      .filter((id) => id.length > 0);
+
+    // Fetch items by userId and budgetId(s)
     const items = await prisma.items.findMany({
       where: {
         userId: session.user.id,
-        budgetId: budgetId,
+        budgetId: {
+          in: budgetIds,
+        },
       },
       orderBy: {
         createdAt: "desc",
       },
     });
 
-    const budget = await prisma.budget.findUnique({
+    const budget = await prisma.budget.findFirst({
       where: {
-        id: budgetId,
+        id: budgetIds[0],
         userId: session.user.id,
       },
     });
 
-    return NextResponse.json(
-      { items, budget },
-      { status: 200, headers: { "Content-Type": "application/json" } }
-    );
+    return NextResponse.json({ items, budget }, { status: 200 });
   } catch (error) {
     console.error("Error fetching items:", error);
     return NextResponse.json("Failed to fetch items", { status: 500 });

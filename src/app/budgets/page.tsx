@@ -12,19 +12,35 @@ interface Budget {
   name: string;
   description: string;
   amount: number;
-  remaining: number;
 }
+
+type Expenses = {
+  id: string;
+  name: string;
+  quantity: number;
+  amount: number;
+  budgetId: string; // was number before
+};
 
 export default function Budget() {
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [showModal, setShowModal] = useState<boolean>(false);
   const [budgets, setBudgets] = useState<Budget[] | []>([]);
+  const [expenses, setExpenses] = useState<Expenses[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
     fetchBudgets();
   }, []);
 
+  useEffect(() => {
+      if (budgets.length > 0) {
+        fetchExpenses(budgets.map((b) => b.id)); // string[]
+      }
+    }, [budgets]);
+
   const fetchBudgets = async () => {
+    setLoading(true);
     try {
       const response = await axios.get<{ budgets: Budget[] }>(
         "/api/budget/get"
@@ -37,12 +53,50 @@ export default function Budget() {
       console.log("Fetched budgets:", data.budgets);
     } catch (error) {
       console.error("Error fetching budgets:", error);
+    } finally {
+      setLoading(false);
     }
   };
 
-  const filteredBudgets = budgets.filter((budget) =>
+  const fetchExpenses = async (budgetIds: string[]) => {
+      try {
+        const query = budgetIds.join(",");
+        const response = await axios.get(`/api/items/get?budgetId=${query}`);
+        console.log("Raw response:", response.data);
+  
+        const expensesArray = Array.isArray(response.data)
+          ? response.data
+          : response.data.items; // <- changed to match your backend `items` key
+  
+        setExpenses(expensesArray);
+      } catch (error) {
+        console.error("Error fetching expenses:", error);
+      }
+    };
+
+  // Combine budget and its total spent
+  const budgetWithSpending = budgets.map((budget) => {
+    const spent = (expenses ?? [])
+      .filter((expense) => expense.budgetId === budget.id)
+      .reduce((sum, e) => sum + (e.amount * e.quantity), 0);
+    return {
+      ...budget,
+      spent,
+    };
+  });
+
+  const budgetRemaining = budgetWithSpending.reduce(
+    (total, budget) => total + (budget.amount - budget.spent),
+    0
+  );
+
+  const filteredBudgets = budgetWithSpending.filter((budget) =>
     budget.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
+
+  if (loading) return <div className="text-center text-gray-500 h-screen flex items-center justify-center">
+    <h1 className="font-bold text-xl">Loading budgets...</h1>
+  </div>;
 
   return (
     <ProtectedRoute>
@@ -99,7 +153,7 @@ export default function Budget() {
                         Amount: ${budget.amount.toFixed(2)}
                       </span>
                       <span className="text-sm font-medium text-gray-500 bg-gray-100 px-2 py-1 rounded-lg">
-                        Remaining: $0
+                        Remaining: {(budget.amount - budget.spent).toFixed(2)}
                       </span>
                     </div>
                     <div className="flex items-center gap-2">
@@ -108,14 +162,17 @@ export default function Budget() {
                           className="bg-gradient-to-r from-teal-600 to-teal-500 h-3 rounded-full transition-all"
                           style={{
                             width: `${Math.min(
-                              (budget.remaining / budget.amount) * 100,
+                              (budget.spent / budget.amount) * 100,
                               100
-                            )}%`,
+                            )}%
+                          `
                           }}
                         />
                       </div>
                       <span className="text-xs text-gray-400">
-                        {Math.round((budget.remaining / budget.amount) * 100)}%
+                        {Math.round(
+                          (budget.spent / budget.amount) * 100
+                        )}%
                       </span>
                     </div>
                   </div>

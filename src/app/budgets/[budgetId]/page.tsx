@@ -23,6 +23,7 @@ interface Items {
 interface Budget {
   id: string;
   name: string;
+  amount: number;
 }
 
 export default function AddItem() {
@@ -30,6 +31,7 @@ export default function AddItem() {
   const [items, setItems] = useState<Items[] | []>([]);
   const [budget, setBudget] = useState<Budget | null>(null);
   const [searchTerm, setSearchTerm] = useState<string>("");
+  const [loading, setLoading] = useState<boolean>(true);
   const { budgetId } = useParams();
 
   useEffect(() => {
@@ -39,6 +41,7 @@ export default function AddItem() {
   }, [budgetId]);
 
   const fetchItems = async (budgetId: string) => {
+    setLoading(true);
     try {
       const response = await axios.get(`/api/items/get?budgetId=${budgetId}`);
       if (!response || !response.data) {
@@ -49,12 +52,25 @@ export default function AddItem() {
       setBudget(response.data.budget);
     } catch (error) {
       console.error("Error fetching items:", error);
+    } finally {
+      setLoading(false);
     }
   };
+
+  const amountSpent = items.reduce((total, item) => {
+    return total + item.amount * item.quantity;
+  }, 0);
 
   const filteredItems = items.filter((item) =>
     item.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
+
+  if (loading)
+    return (
+      <div className="text-center text-gray-500 h-screen flex items-center justify-center">
+        <h1 className="font-bold text-xl">Loading expenses...</h1>
+      </div>
+    );
 
   return (
     <ProtectedRoute>
@@ -63,10 +79,20 @@ export default function AddItem() {
           <header className="mb-10">
             <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 mb-6">
               <h1 className="text-2xl p-0 m-0 border-b-2 font-bold text-teal-900 tracking-tight mb-2 md:mb-0">
-                <Link href={`/budgets`} className="hover:text-blue-800 transition py-2">
+                <Link
+                  href={`/budgets`}
+                  className="hover:text-blue-800 transition py-2"
+                >
                   {budget ? budget.name : "Budget Items"}
                 </Link>
               </h1>
+              <p className="text-green-700 text-lg">
+                <b>Allocation: </b>${budget ? budget.amount : "0"}
+              </p>
+              <p>
+                <b>Amount Spent: </b>
+                {amountSpent}
+              </p>
               <div className="flex gap-2 w-full md:w-auto">
                 <input
                   type="text"
@@ -89,7 +115,9 @@ export default function AddItem() {
               <table className="min-w-full divide-y divide-blue-100">
                 <thead className="bg-gradient-to-r from-blue-100 to-blue-200">
                   <tr>
-                    <th className="px-6 py-3 text-left text-xs font-bold text-blue-900 uppercase tracking-wider">#</th>
+                    <th className="px-6 py-3 text-left text-xs font-bold text-blue-900 uppercase tracking-wider">
+                      #
+                    </th>
                     <th className="px-6 py-3 text-left text-xs font-bold text-blue-900 uppercase tracking-wider">
                       Item Name
                     </th>
