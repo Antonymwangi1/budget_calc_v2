@@ -68,6 +68,7 @@ export default function LoginPage() {
             placeholder="Email"
             value={form.email}
             onChange={handleChange}
+            required
             className="border border-gray-400 px-3 py-4 w-full rounded mt-1"
           />
         </div>
@@ -81,6 +82,7 @@ export default function LoginPage() {
             placeholder="Password"
             value={form.password}
             onChange={handleChange}
+            required
             className="border border-gray-400 px-3 py-4 w-full rounded mt-1"
           />
         </div>
@@ -93,7 +95,7 @@ export default function LoginPage() {
           {/* Link to forgot password (placeholder) */}
           <Link
             href={`#`}
-            className="text-blue-500 font-bold border-b-2 hover:text-blue-600"
+            className="text-teal-500 font-bold border-b-2 hover:text-teal-600"
           >
             Forgot password?
           </Link>
@@ -101,7 +103,7 @@ export default function LoginPage() {
         {/* Submit button */}
         <button
           type="submit"
-          className="bg-blue-600 text-white px-4 py-2 mt-2 rounded hover:bg-blue-700 w-full"
+          className="bg-teal-600 text-white px-4 py-2 mt-2 rounded hover:bg-teal-700 w-full"
         >
           Login
         </button>
@@ -111,7 +113,7 @@ export default function LoginPage() {
       {/* Link to registration page */}
       <p className="mt-6 text-center">
         Don't have an account?
-        <Link href="/register" className="text-blue-600">
+        <Link href="/register" className="text-teal-600">
           {" "}
           Register
         </Link>

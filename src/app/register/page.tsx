@@ -42,6 +42,7 @@ export default function RegisterPage() {
             placeholder="Name"
             value={form.name}
             onChange={handleChange}
+            required
             className="border border-gray-400 px-3 py-4 w-full rounded mt-1"
           />
         </div>
@@ -56,6 +57,7 @@ export default function RegisterPage() {
             value={form.email}
             onChange={handleChange}
             className="border border-gray-400 px-3 py-4 w-full rounded mt-1"
+            required
           />
         </div>
         <div className="form-group">
@@ -69,6 +71,7 @@ export default function RegisterPage() {
             value={form.password}
             onChange={handleChange}
             className="border border-gray-400 px-3 py-4 w-full rounded mt-1"
+            required
           />
         </div>
         <button

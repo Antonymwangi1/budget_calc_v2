@@ -91,7 +91,7 @@ export default function AddItem() {
               </p>
               <p>
                 <b>Amount Spent: </b>
-                {amountSpent}
+                {amountSpent.toFixed(2)}
               </p>
               <div className="flex gap-2 w-full md:w-auto">
                 <input

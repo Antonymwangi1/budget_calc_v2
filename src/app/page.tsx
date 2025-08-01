@@ -25,6 +25,7 @@ const COLORS = ["#028090", "#114B5F", "#456990", "#F45B69", "#8B5CF6"];
 export default function Dashboard() {
   const [budgets, setBudgets] = useState<Budget[]>([]);
   const [expenses, setExpenses] = useState<Expenses[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
     fetchBudgets();
@@ -140,8 +141,8 @@ export default function Dashboard() {
                 </div>
               </div>
             ))}
-            <p>
-              <Link href="/budgets" className="text-blue-600 hover:underline">
+            <p className="text-center font-bold">
+              <Link href="/budgets" className="text-teal-600 hover:text-blue-600 underline">
                 View all budgets
               </Link>
             </p>
