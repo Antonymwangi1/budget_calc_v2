@@ -150,10 +150,10 @@ export default function Budget() {
                     </p>
                     <div className="flex items-center justify-between mb-4">
                       <span className="text-xl font-semibold text-gray-500 bg-blue-50 px-3 py-1 rounded-lg">
-                        Amount: ${budget.amount.toFixed(2)}
+                        Allocated: ${budget.amount.toFixed(2)}
                       </span>
                       <span className="text-sm font-medium text-gray-500 bg-gray-100 px-2 py-1 rounded-lg">
-                        Remaining: {(budget.amount - budget.spent).toFixed(2)}
+                        Remaining: ${(budget.amount - budget.spent).toFixed(2)}
                       </span>
                     </div>
                     <div className="flex items-center gap-2">

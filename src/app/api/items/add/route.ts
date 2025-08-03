@@ -39,6 +39,35 @@ export async function POST(request: Request) {
       return NextResponse.json("Budget not found", { status: 404 });
     }
 
+    // get all items for the budget
+    const items = await prisma.items.findMany({
+      where: {
+        budgetId: budgetId,
+        userId: userId,
+      },
+      select: {
+        amount: true,
+        quantity: true,
+      },
+    });
+
+    // Calculate total spent so far
+    const totalSpent = items.reduce((sum, item) => {
+      return sum + item.amount * item.quantity;
+    }, 0);
+
+    // Calculate the new item's total cost
+    const newItemTotal = parseFloat(amount) * parseInt(quantity, 10);
+
+    // Check if it exceeds budget
+    if (totalSpent + newItemTotal > budget.amount) {
+      return NextResponse.json(
+        "Item amount exceeds budget's remaining amount",
+        { status: 422 }
+      );
+    }
+
+    // Create the new item
     const newItem = await prisma.items.create({
       data: {
         name,

@@ -6,6 +6,7 @@ import { useAuth } from "@/context/AuthContext";
 import axios from "axios";
 import Link from "next/link";
 import { useParams } from "next/navigation";
+import bcrypt from "bcryptjs";
 
 // import axios from "axios";
 // import { useRouter, useParams } from "next/navigation";

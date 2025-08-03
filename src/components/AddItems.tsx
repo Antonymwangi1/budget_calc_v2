@@ -12,6 +12,7 @@ const AddItems = ({
   const [amount, setAmount] = useState("");
   const [quantity, setQuantity] = useState("");
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -30,6 +31,12 @@ const AddItems = ({
       setQuantity("");
     } catch (error) {
       console.error("Error adding item:", error);
+      // check if error is item amount exceeds budget
+      if (axios.isAxiosError(error) && error.response?.status === 422) {
+        setError("Item amount exceeds budget's remaining amount");
+      } else {
+        setError("Failed to add item. Please try again.");
+      }
     } finally {
       setLoading(false);
     }
@@ -81,6 +88,7 @@ const AddItems = ({
             className="border border-blue-200 rounded-xl p-3 w-full focus:outline-none focus:ring-2 focus:ring-blue-400 transition shadow-sm bg-blue-50 placeholder:text-blue-300"
           />
         </div>
+        <p className="text-red-700 font-bold">{error}</p>
         <button
           type="submit"
           disabled={loading}
