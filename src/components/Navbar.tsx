@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { LuLayoutDashboard } from "react-icons/lu";
-import { CiViewList } from "react-icons/ci";
+import { CiBoxList, CiViewList } from "react-icons/ci";
 import { IoSettingsOutline } from "react-icons/io5";
 import { PiSignOutFill } from "react-icons/pi";
 import { useAuth } from "@/context/AuthContext";
@@ -39,11 +39,11 @@ const Navbar = () => {
             </li>
             <li>
               <Link
-                href="/settings"
+                href="/expenses"
                 className="flex items-center px-4 py-3 rounded-lg hover:bg-gray-700 transition-colors group"
               >
-                <IoSettingsOutline className="mr-3 text-lg group-hover:text-blue-400" />
-                <span className="font-medium">Settings</span>
+                <CiBoxList className="mr-3 text-lg group-hover:text-blue-400" />
+                <span className="font-medium">All Expenses</span>
               </Link>
             </li>
           </ul>
