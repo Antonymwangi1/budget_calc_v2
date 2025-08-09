@@ -28,16 +28,18 @@ export default function Budget() {
   const [budgets, setBudgets] = useState<Budget[] | []>([]);
   const [expenses, setExpenses] = useState<Expenses[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
+  const [editingBudget, setEditingBudget] = useState<boolean>(false);
+  const [budgetToEdit, setBudgetToEdit] = useState<Budget | null>(null);
 
   useEffect(() => {
     fetchBudgets();
   }, []);
 
   useEffect(() => {
-      if (budgets.length > 0) {
-        fetchExpenses(budgets.map((b) => b.id)); // string[]
-      }
-    }, [budgets]);
+    if (budgets.length > 0) {
+      fetchExpenses(budgets.map((b) => b.id)); // string[]
+    }
+  }, [budgets]);
 
   const fetchBudgets = async () => {
     setLoading(true);
@@ -59,26 +61,26 @@ export default function Budget() {
   };
 
   const fetchExpenses = async (budgetIds: string[]) => {
-      try {
-        const query = budgetIds.join(",");
-        const response = await axios.get(`/api/items/get?budgetId=${query}`);
-        console.log("Raw response:", response.data);
-  
-        const expensesArray = Array.isArray(response.data)
-          ? response.data
-          : response.data.items; // <- changed to match your backend `items` key
-  
-        setExpenses(expensesArray);
-      } catch (error) {
-        console.error("Error fetching expenses:", error);
-      }
-    };
+    try {
+      const query = budgetIds.join(",");
+      const response = await axios.get(`/api/items/get?budgetId=${query}`);
+      console.log("Raw response:", response.data);
+
+      const expensesArray = Array.isArray(response.data)
+        ? response.data
+        : response.data.items; // <- changed to match your backend `items` key
+
+      setExpenses(expensesArray);
+    } catch (error) {
+      console.error("Error fetching expenses:", error);
+    }
+  };
 
   // Combine budget and its total spent
   const budgetWithSpending = budgets.map((budget) => {
     const spent = (expenses ?? [])
       .filter((expense) => expense.budgetId === budget.id)
-      .reduce((sum, e) => sum + (e.amount * e.quantity), 0);
+      .reduce((sum, e) => sum + e.amount * e.quantity, 0);
     return {
       ...budget,
       spent,
@@ -94,9 +96,12 @@ export default function Budget() {
     budget.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  if (loading) return <div className="text-center text-gray-500 h-screen flex items-center justify-center">
-    <h1 className="font-bold text-xl">Loading budgets...</h1>
-  </div>;
+  if (loading)
+    return (
+      <div className="text-center text-gray-500 h-screen flex items-center justify-center">
+        <h1 className="font-bold text-xl">Loading budgets...</h1>
+      </div>
+    );
 
   return (
     <ProtectedRoute>
@@ -104,9 +109,7 @@ export default function Budget() {
         <div className="max-w-5xl mx-auto">
           <header className="mb-12">
             <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6 mb-8">
-              <h1 className="text-3xl font-bold mb-2 md:mb-0">
-                My Budgets
-              </h1>
+              <h1 className="text-3xl font-bold mb-2 md:mb-0">My Budgets</h1>
               <div className="flex gap-3 w-full md:w-auto">
                 <input
                   type="text"
@@ -116,7 +119,9 @@ export default function Budget() {
                   className="px-5 py-3 rounded-xl border border-blue-200 focus:outline-none focus:ring-2 focus:ring-blue-400 transition w-full md:w-56 bg-white shadow-md text-lg"
                 />
                 <button
-                  onClick={() => setShowModal(true)}
+                  onClick={() => {
+                    setShowModal(true), setEditingBudget(false);
+                  }}
                   className="px-5 py-3 rounded-xl bg-gradient-to-r from-blue-500 to-blue-700 text-white font-bold shadow-lg hover:from-blue-600 hover:to-blue-800 transition text-lg"
                 >
                   + Add Budget
@@ -127,56 +132,62 @@ export default function Budget() {
           <div className="grid md:grid-cols-2 gap-10">
             {filteredBudgets.length > 0 ? (
               filteredBudgets.map((budget) => (
-                <Link href={`/budgets/${budget.id}`} key={budget.id}>
-                  <div
-                    key={budget.id}
-                    className="bg-white p-8 hover:shadow-2xl transition group rounded-2xl border border-gray-200 shadow-md"
-                  >
-                    <div className="flex items-center justify-between mb-4">
+                <div
+                  key={budget.id}
+                  className="bg-white p-8 hover:shadow-2xl transition group rounded-2xl border border-gray-200 shadow-md"
+                >
+                  <div className="flex items-center justify-between mb-4">
+                    <Link href={`/budgets/${budget.id}`} key={budget.id}>
                       <h2 className="text-2xl font-bold transition">
                         {budget.name}
                       </h2>
-                      <div className="flex gap-3">
-                        <button className="text-blue-500 hover:text-yellow-700 transition">
-                          <FaEdit size={24} />
-                        </button>
-                        <button className="text-red-500 hover:text-red-700 transition">
-                          <FaTrash size={21} />
-                        </button>
-                      </div>
-                    </div>
-                    <p className="text-gray-600 mb-6 text-lg">
-                      {budget.description}
-                    </p>
-                    <div className="flex items-center justify-between mb-4">
-                      <span className="text-xl font-semibold text-gray-500 bg-blue-50 px-3 py-1 rounded-lg">
-                        Allocated: ${budget.amount.toFixed(2)}
-                      </span>
-                      <span className="text-sm font-medium text-gray-500 bg-gray-100 px-2 py-1 rounded-lg">
-                        Remaining: ${(budget.amount - budget.spent).toFixed(2)}
-                      </span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <div className="w-full bg-gray-200 rounded-full h-3">
-                        <div
-                          className="bg-gradient-to-r from-teal-600 to-teal-500 h-3 rounded-full transition-all"
-                          style={{
-                            width: `${Math.min(
-                              (budget.spent / budget.amount) * 100,
-                              100
-                            )}%
-                          `
-                          }}
-                        />
-                      </div>
-                      <span className="text-xs text-gray-400">
-                        {Math.round(
-                          (budget.spent / budget.amount) * 100
-                        )}%
-                      </span>
+                    </Link>
+
+                    <div className="flex gap-3">
+                      <button
+                        onClick={() => {
+                          setBudgetToEdit(budget); // pass the current budget
+                          setShowModal(true);
+                          setEditingBudget(true);
+                        }}
+                        className="text-blue-500 hover:text-yellow-700 transition"
+                      >
+                        <FaEdit size={24} />
+                      </button>
+                      <button className="text-red-500 hover:text-red-700 transition">
+                        <FaTrash size={21} />
+                      </button>
                     </div>
                   </div>
-                </Link>
+                  <p className="text-gray-600 mb-6 text-lg">
+                    {budget.description}
+                  </p>
+                  <div className="flex items-center justify-between mb-4">
+                    <span className="text-xl font-semibold text-gray-500 bg-blue-50 px-3 py-1 rounded-lg">
+                      Allocated: ${budget.amount.toFixed(2)}
+                    </span>
+                    <span className="text-sm font-medium text-gray-500 bg-gray-100 px-2 py-1 rounded-lg">
+                      Remaining: ${(budget.amount - budget.spent).toFixed(2)}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="w-full bg-gray-200 rounded-full h-3">
+                      <div
+                        className="bg-gradient-to-r from-teal-600 to-teal-500 h-3 rounded-full transition-all"
+                        style={{
+                          width: `${Math.min(
+                            (budget.spent / budget.amount) * 100,
+                            100
+                          )}%
+                          `,
+                        }}
+                      />
+                    </div>
+                    <span className="text-xs text-gray-400">
+                      {Math.round((budget.spent / budget.amount) * 100)}%
+                    </span>
+                  </div>
+                </div>
               ))
             ) : (
               <p className="col-span-full text-center text-gray-500 text-lg">
@@ -204,6 +215,8 @@ export default function Budget() {
                   onBudgetAdded={() => {
                     fetchBudgets();
                   }}
+                  editing={editingBudget}
+                  budgetToEdit={budgetToEdit}
                 />
               </div>
             </div>

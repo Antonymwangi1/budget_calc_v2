@@ -134,9 +134,6 @@ const page = () => {
                     <th className="px-6 py-3 text-left text-xs font-bold text-blue-900 uppercase tracking-wider">
                       Total
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-bold text-blue-900 uppercase tracking-wider">
-                      Actions
-                    </th>
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-blue-50">
@@ -168,14 +165,6 @@ const page = () => {
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
                           ${(item.amount * item.quantity).toFixed(2)}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap flex gap-2">
-                          <button className="px-3 py-1 rounded-md bg-blue-100 text-blue-700 hover:bg-blue-200 transition text-sm font-semibold shadow-sm">
-                            Edit
-                          </button>
-                          <button className="px-3 py-1 rounded-md bg-red-100 text-red-700 hover:bg-red-200 transition text-sm font-semibold shadow-sm">
-                            Delete
-                          </button>
                         </td>
                       </tr>
                     ))

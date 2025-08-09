@@ -1,8 +1,23 @@
 import axios from "axios";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
-const AddBudget = ({ onBudgetAdded }: { onBudgetAdded: () => void }) => {
-  const [form, setForm] = useState({ name: "", description: "", amount: 0 });
+interface Budget {
+  id: string;
+  name: string;
+  description: string;
+  amount: number;
+}
+
+const AddBudget = ({
+  onBudgetAdded,
+  editing,
+  budgetToEdit,
+}: {
+  onBudgetAdded: () => void;
+  editing: boolean;
+  budgetToEdit?: Budget | null;
+}) => {
+  const [form, setForm] = useState({ id: "", name: "", description: "", amount: 0 });
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
 
@@ -25,13 +40,57 @@ const AddBudget = ({ onBudgetAdded }: { onBudgetAdded: () => void }) => {
       setError("Failed to add budget. Please try again.");
     } finally {
       setLoading(false);
-      setForm({ name: "", description: "", amount: 0 });
+      setForm({ id: "", name: "", description: "", amount: 0 });
+    }
+  };
+
+  useEffect(() => {
+    if (editing && budgetToEdit) {
+      setForm({
+        id: budgetToEdit.id,
+        name: budgetToEdit.name,
+        description: budgetToEdit.description,
+        amount: budgetToEdit.amount,
+      });
+    }
+  }, [editing, budgetToEdit]);
+
+  const handleEdit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setError(null);
+    try {
+      const response = await axios.patch(
+        `/api/budget/edit`,
+        form
+      );
+      onBudgetAdded();
+      console.log("Budget updated:", response.data);
+    } catch (error) {
+      console.error("Error updating budget:", error);
+      setError("Failed to update budget. Please try again.");
+    } finally {
+      setLoading(false);
+      setForm({id: "", name: "", description: "", amount: 0 });
     }
   };
 
   return (
     <div className="max-w-md mx-auto mt-10 bg-white shadow-xl rounded-2xl p-8 border border-gray-100">
-      <form className="space-y-6" onSubmit={handleSubmit}>
+      {editing ? (
+        <h2 className="text-2xl font-semibold text-gray-800 mb-6">
+          Edit Budget
+        </h2>
+      ) : (
+        <h2 className="text-2xl font-semibold text-gray-800 mb-6">
+          Add New Budget
+        </h2>
+      )}
+      <form
+        className="space-y-6"
+        onSubmit={editing ? handleEdit : handleSubmit}
+      >
+        <input type="text" name="id" onChange={handleChange} value={form.id} className="hidden" disabled />
         <div>
           <label
             htmlFor="title"
@@ -93,6 +152,7 @@ const AddBudget = ({ onBudgetAdded }: { onBudgetAdded: () => void }) => {
           className="w-full bg-gradient-to-r from-blue-600 to-blue-500 text-white font-semibold px-4 py-2 rounded-lg shadow hover:from-blue-700 hover:to-blue-600 transition disabled:opacity-60"
           disabled={loading}
         >
+          {/* {loading ? "Saving..." : editing ? "Update Budget" : "Add Budget"} */}
           {loading ? (
             <span className="flex items-center justify-center gap-2">
               <svg
@@ -114,8 +174,10 @@ const AddBudget = ({ onBudgetAdded }: { onBudgetAdded: () => void }) => {
                   d="M4 12a8 8 0 018-8v8z"
                 />
               </svg>
-              Adding...
+              Saving...
             </span>
+          ) : editing ? (
+            "Update Budget"
           ) : (
             "Add Budget"
           )}
