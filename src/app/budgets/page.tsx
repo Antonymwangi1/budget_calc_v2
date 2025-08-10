@@ -96,6 +96,16 @@ export default function Budget() {
     budget.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  const deleteBudget = async (budgetId: string) => {
+    try {
+      await axios.delete(`/api/budget/delete?budgetId=${budgetId}`);
+      window.location.reload();
+    } catch (err) {
+      console.error("❌ Delete request failed:", err);
+      alert("Failed to delete budget");
+    }
+  };
+
   if (loading)
     return (
       <div className="text-center text-gray-500 h-screen flex items-center justify-center">
@@ -154,7 +164,10 @@ export default function Budget() {
                       >
                         <FaEdit size={24} />
                       </button>
-                      <button className="text-red-500 hover:text-red-700 transition">
+                      <button
+                        onClick={() => deleteBudget(budget.id)}
+                        className="text-red-500 hover:text-red-700 transition"
+                      >
                         <FaTrash size={21} />
                       </button>
                     </div>
