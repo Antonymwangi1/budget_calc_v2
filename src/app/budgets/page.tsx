@@ -147,16 +147,22 @@ export default function Budget() {
                   className="bg-white p-8 hover:shadow-2xl transition group rounded-2xl border border-gray-200 shadow-md"
                 >
                   <div className="flex items-center justify-between mb-4">
-                    <Link href={`/budgets/${budget.id}`} key={budget.id}>
+                    <Link href={`/budgets/${budget.id}`} key={budget.id} className="underline hover:text-teal-700">
                       <h2 className="text-2xl font-bold transition">
                         {budget.name}
                       </h2>
                     </Link>
 
                     <div className="flex gap-3">
+                      <Link
+                        href={`/budgets/${budget.id}`} key={budget.id}
+                        className="text-teal-700 hover:text-green-700 transition"
+                      >
+                        <FaEye size={28} />
+                      </Link>
                       <button
                         onClick={() => {
-                          setBudgetToEdit(budget); // pass the current budget
+                          setBudgetToEdit(budget);
                           setShowModal(true);
                           setEditingBudget(true);
                         }}

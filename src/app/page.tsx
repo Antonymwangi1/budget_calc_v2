@@ -7,7 +7,7 @@ import Link from "next/link";
 import axios from "axios";
 
 type Budget = {
-  id: string; // was number before
+  id: string;
   name: string;
   amount: number;
 };
@@ -114,35 +114,43 @@ export default function Dashboard() {
               Your Budgets
             </h2>
             {budgetWithSpending.slice(0, 2).map((b) => (
-              <div
+              <Link
+                href={`/budgets/${b.id}`}
                 key={b.id}
                 className="bg-white rounded-2xl border border-gray-200 p-6 shadow-md flex flex-col gap-3 hover:shadow-xl transition-shadow"
               >
-                <div className="flex justify-between items-center">
-                  <p className="text-lg font-semibold text-gray-700">
-                    {b.name}
-                  </p>
-                  <p className="text-sm text-gray-500">
-                    <span className="font-bold text-blue-600">${b.spent}</span>{" "}
-                    / <span className="text-gray-700">${b.amount}</span> used
-                  </p>
+                <div>
+                  <div className="flex justify-between items-center">
+                    <p className="text-lg font-semibold text-gray-700">
+                      {b.name}
+                    </p>
+                    <p className="text-sm text-gray-500">
+                      <span className="font-bold text-blue-600">
+                        ${b.spent}
+                      </span>{" "}
+                      / <span className="text-gray-700">${b.amount}</span> used
+                    </p>
+                  </div>
+                  <div className="w-full h-4 bg-gray-100 rounded-full overflow-hidden">
+                    <div
+                      className="h-4 bg-gradient-to-r from-teal-600 to-teal-500 rounded-full transition-all"
+                      style={{
+                        width: `${Math.min((b.spent / b.amount) * 100, 100)}%`,
+                      }}
+                    />
+                  </div>
+                  <div className="flex justify-between text-xs text-gray-400 mt-1">
+                    <span>Spent</span>
+                    <span>Budget</span>
+                  </div>
                 </div>
-                <div className="w-full h-4 bg-gray-100 rounded-full overflow-hidden">
-                  <div
-                    className="h-4 bg-gradient-to-r from-teal-600 to-teal-500 rounded-full transition-all"
-                    style={{
-                      width: `${Math.min((b.spent / b.amount) * 100, 100)}%`,
-                    }}
-                  />
-                </div>
-                <div className="flex justify-between text-xs text-gray-400 mt-1">
-                  <span>Spent</span>
-                  <span>Budget</span>
-                </div>
-              </div>
+              </Link>
             ))}
             <p className="text-center font-bold">
-              <Link href="/budgets" className="text-teal-600 hover:text-blue-600 underline">
+              <Link
+                href="/budgets"
+                className="text-teal-600 hover:text-blue-600 underline"
+              >
                 View all budgets
               </Link>
             </p>
