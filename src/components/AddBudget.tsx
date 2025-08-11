@@ -77,15 +77,7 @@ const AddBudget = ({
 
   return (
     <div className="max-w-md mx-auto mt-10 bg-white shadow-xl rounded-2xl p-8 border border-gray-100">
-      {editing ? (
-        <h2 className="text-2xl font-semibold text-gray-800 mb-6">
-          Edit Budget
-        </h2>
-      ) : (
-        <h2 className="text-2xl font-semibold text-gray-800 mb-6">
-          Add New Budget
-        </h2>
-      )}
+      
       <form
         className="space-y-6"
         onSubmit={editing ? handleEdit : handleSubmit}

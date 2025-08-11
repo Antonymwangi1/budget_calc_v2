@@ -1,14 +1,28 @@
 import axios from "axios";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+
+interface Item {
+  id: string;
+  name: string;
+  amount: number;
+  quantity: number;
+  budgetId: string;
+}
+
 
 const AddItems = ({
   budgetId,
   onItemAdded,
+  editing,
+  itemToEdit
 }: {
   budgetId: string;
   onItemAdded: () => void;
+  editing: boolean;
+  itemToEdit?: Item | null
 }) => {
   const [name, setName] = useState("");
+  const [itemId, setItemId] = useState("")
   const [amount, setAmount] = useState("");
   const [quantity, setQuantity] = useState("");
   const [loading, setLoading] = useState(false);
@@ -42,12 +56,50 @@ const AddItems = ({
     }
   };
 
+  useEffect(() => {
+    if(editing && itemToEdit) {
+      setItemId(itemToEdit.id)
+      setName(itemToEdit.name)
+      setAmount(itemToEdit.amount.toString())
+      setQuantity(itemToEdit.quantity.toString())
+    }
+  }, [editing, itemToEdit])
+
+  const handleEdit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+
+    try {
+      await axios.patch(`/api/items/edit?budgetId=${budgetId}`, {
+        itemId,
+        name,
+        amount: parseFloat(amount),
+        quantity: parseInt(quantity, 10) || 1,
+      });
+      onItemAdded();
+      setName("");
+      setAmount("");
+      setQuantity("");
+    } catch (error) {
+      console.error("Error adding item:", error);
+      // check if error is item amount exceeds budget
+      if (axios.isAxiosError(error) && error.response?.status === 422) {
+        setError("Item amount exceeds budget's remaining amount");
+      } else {
+        setError("Failed to add item. Please try again.");
+      }
+    } finally {
+      setLoading(false);
+    }
+  }
+
   return (
     <div className="flex justify-center items-center min-h-[60vh] bg-gradient-to-br from-blue-50 via-white to-blue-100">
       <form
-        onSubmit={handleSubmit}
+        onSubmit={editing ? handleEdit : handleSubmit}
         className="w-full max-w-lg bg-white/90 backdrop-blur-md rounded-2xl shadow-2xl p-4 space-y-8 border border-blue-100"
       >
+        <input type="text" name="id" onChange={(e) => setItemId(e.target.value)} value={itemId} className="hidden" />
         <div>
           <label className="block text-sm text-gray-700 font-semibold mb-2">
             Item Name
@@ -117,10 +169,12 @@ const AddItems = ({
                   d="M4 12a8 8 0 018-8v8z"
                 />
               </svg>
-              Adding...
+              Saving...
             </span>
+          ) : editing ? (
+            "Update Item"
           ) : (
-            "Add Items"
+            "Add Item"
           )}
         </button>
       </form>

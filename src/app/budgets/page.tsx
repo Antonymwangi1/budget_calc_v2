@@ -214,7 +214,7 @@ export default function Budget() {
             <div className="bg-white rounded-2xl p-8 shadow-2xl w-full max-w-lg border border-blue-100">
               <div className="flex items-center justify-between mb-6">
                 <h2 className="text-2xl font-bold text-blue-800">
-                  Add New Budget
+                  {editingBudget ? "Edit Budget" : "Add New Budget"}
                 </h2>
                 <button
                   onClick={() => setShowModal(false)}
