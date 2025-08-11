@@ -66,6 +66,15 @@ export default function AddItem() {
     item.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  const deleteItem = async (itemId: string) => {
+    try {
+      await axios.delete(`/api/items/delete?itemId=${itemId}`);
+      window.location.reload();
+    } catch (error: any) {
+      console.error("❌ Delete request failed:", error);
+    }
+  }
+
   if (loading)
     return (
       <div className="text-center text-gray-500 h-screen flex items-center justify-center">
@@ -162,7 +171,7 @@ export default function AddItem() {
                           <button className="px-3 py-1 rounded-md bg-blue-100 text-blue-700 hover:bg-blue-200 transition text-sm font-semibold shadow-sm">
                             Edit
                           </button>
-                          <button className="px-3 py-1 rounded-md bg-red-100 text-red-700 hover:bg-red-200 transition text-sm font-semibold shadow-sm">
+                          <button onClick={() => deleteItem(item.id)} className="px-3 py-1 rounded-md bg-red-100 text-red-700 hover:bg-red-200 transition text-sm font-semibold shadow-sm">
                             Delete
                           </button>
                         </td>
