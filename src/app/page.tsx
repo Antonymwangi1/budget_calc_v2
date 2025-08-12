@@ -5,6 +5,7 @@ import ProtectedRoute from "@/components/ProtectedRoute";
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from "recharts";
 import Link from "next/link";
 import axios from "axios";
+import { getCurrency } from "@/lib/settings";
 
 type Budget = {
   id: string;
@@ -26,9 +27,11 @@ export default function Dashboard() {
   const [budgets, setBudgets] = useState<Budget[]>([]);
   const [expenses, setExpenses] = useState<Expenses[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
+  const [currency, setCurrency] = useState<string>("$")
 
   useEffect(() => {
     fetchBudgets();
+    setCurrency(getCurrency())
   }, []);
 
   useEffect(() => {
@@ -101,7 +104,7 @@ export default function Dashboard() {
               Total Spend
             </p>
             <p className="text-4xl font-extrabold text-gray-800">
-              ${totalSpend}
+              {currency}{totalSpend}
             </p>
           </div>
         </div>
@@ -126,7 +129,7 @@ export default function Dashboard() {
                     </p>
                     <p className="text-sm text-gray-500">
                       <span className="font-bold text-blue-600">
-                        ${b.spent}
+                        {currency}{b.spent}
                       </span>{" "}
                       / <span className="text-gray-700">${b.amount}</span> used
                     </p>

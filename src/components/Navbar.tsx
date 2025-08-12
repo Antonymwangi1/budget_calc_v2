@@ -66,25 +66,8 @@ const Navbar = () => {
                 />
               </svg>
             </button>
-            <div className="absolute left-0 -top-38 w-full mt-2 bg-gray-800 rounded-lg shadow-lg opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 pointer-events-none group-hover:pointer-events-auto group-focus-within:pointer-events-auto transition-opacity z-10">
+            <div className="absolute left-0 -top-18 w-full mt-2 bg-gray-800 rounded-lg shadow-lg opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 pointer-events-none group-hover:pointer-events-auto group-focus-within:pointer-events-auto transition-opacity z-10">
               <ul className="py-2">
-                <li>
-                  <Link
-                    href="/settings"
-                    className="block px-4 py-2 hover:bg-gray-700 transition-colors"
-                  >
-                    Settings
-                  </Link>
-                </li>
-                <li>
-                  <button
-                    className="block w-full text-left px-4 py-2 hover:bg-gray-700 transition-colors"
-                    // Implement your theme change logic here
-                    onClick={() => alert("Theme change coming soon!")}
-                  >
-                    Change Theme
-                  </button>
-                </li>
                 <li>
                   <Link
                     href="/settings"

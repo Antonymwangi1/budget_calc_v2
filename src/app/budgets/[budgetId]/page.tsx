@@ -12,6 +12,7 @@ import bcrypt from "bcryptjs";
 // import { useRouter, useParams } from "next/navigation";
 import { use, useEffect, useState } from "react";
 import { FaArrowLeft } from "react-icons/fa";
+import { getCurrency } from "@/lib/settings";
 
 interface Item {
   id: string;
@@ -35,13 +36,15 @@ export default function AddItem() {
   const [loading, setLoading] = useState<boolean>(true);
   const [editingBudget, setEditingBudget] = useState<boolean>(false);
   const [itemToEdit, setItemToEdit] = useState<Item | null>(null);
+  const [currency, setCurrency] = useState<string>("$")
   const { budgetId } = useParams();
 
   useEffect(() => {
     if (budgetId) {
       fetchItems(budgetId as string);
     }
-  }, [budgetId]);
+    setCurrency(getCurrency())
+  }, [budgetId, getCurrency()]);
 
   const fetchItems = async (budgetId: string) => {
     setLoading(true);
@@ -104,11 +107,11 @@ export default function AddItem() {
                   </Link>
                 </h1>
                 <p className="text-green-700 text-lg">
-                  <b>Allocation: </b>${budget ? budget.amount : "0"}
+                  <b>Allocation: </b>{currency}{budget ? budget.amount : "0"}
                 </p>
                 <p>
                   <b>Amount Spent: </b>
-                  {amountSpent.toFixed(2)}
+                  {currency}{amountSpent.toFixed(2)}
                 </p>
                 <div className="flex gap-2 w-full md:w-auto">
                   <input
@@ -169,13 +172,13 @@ export default function AddItem() {
                             {item.name}
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap">
-                            ${item.amount.toFixed(2)}
+                            {currency}{item.amount.toFixed(2)}
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap">
                             {item.quantity}
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap">
-                            ${(item.amount * item.quantity).toFixed(2)}
+                            {currency}{(item.amount * item.quantity).toFixed(2)}
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap flex gap-2">
                             <button

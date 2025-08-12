@@ -14,7 +14,7 @@ function LayoutInner({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth();
 
   return (
-    <main className="flex h-screen">
+    <main className={`flex h-screen `}>
       {!loading && user && <Navbar />}
 
       <div className="main-container flex-1 p-6 overflow-auto">{children}</div>

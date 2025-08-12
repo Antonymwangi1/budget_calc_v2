@@ -2,6 +2,7 @@
 
 import AddBudget from "@/components/AddBudget";
 import ProtectedRoute from "@/components/ProtectedRoute";
+import { getCurrency } from "@/lib/settings";
 import axios from "axios";
 import Link from "next/link";
 import React, { useState, useEffect } from "react";
@@ -30,9 +31,11 @@ export default function Budget() {
   const [loading, setLoading] = useState<boolean>(true);
   const [editingBudget, setEditingBudget] = useState<boolean>(false);
   const [budgetToEdit, setBudgetToEdit] = useState<Budget | null>(null);
+  const [currency, setCurrency] = useState<string>("$")
 
   useEffect(() => {
     fetchBudgets();
+    setCurrency(getCurrency())
   }, []);
 
   useEffect(() => {
@@ -181,12 +184,12 @@ export default function Budget() {
                   <p className="text-gray-600 mb-6 text-lg">
                     {budget.description}
                   </p>
-                  <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center justify-between mb-4 gap-2">
                     <span className="text-xl font-semibold text-gray-500 bg-blue-50 px-3 py-1 rounded-lg">
-                      Allocated: ${budget.amount.toFixed(2)}
+                      Allocated: {currency}{budget.amount.toFixed(2)}
                     </span>
                     <span className="text-sm font-medium text-gray-500 bg-gray-100 px-2 py-1 rounded-lg">
-                      Remaining: ${(budget.amount - budget.spent).toFixed(2)}
+                      Remaining: {currency}{(budget.amount - budget.spent).toFixed(2)}
                     </span>
                   </div>
                   <div className="flex items-center gap-2">
