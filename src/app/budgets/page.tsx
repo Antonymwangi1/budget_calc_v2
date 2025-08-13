@@ -31,11 +31,11 @@ export default function Budget() {
   const [loading, setLoading] = useState<boolean>(true);
   const [editingBudget, setEditingBudget] = useState<boolean>(false);
   const [budgetToEdit, setBudgetToEdit] = useState<Budget | null>(null);
-  const [currency, setCurrency] = useState<string>("$")
+  const [currency, setCurrency] = useState<string>("$");
 
   useEffect(() => {
     fetchBudgets();
-    setCurrency(getCurrency())
+    setCurrency(getCurrency());
   }, []);
 
   useEffect(() => {
@@ -118,50 +118,58 @@ export default function Budget() {
 
   return (
     <ProtectedRoute>
-      <div className="min-h-screen p-8">
+      <div className="min-h-screen p-4 sm:p-8">
         <div className="max-w-5xl mx-auto">
-          <header className="mb-12">
-            <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6 mb-8">
-              <h1 className="text-3xl font-bold mb-2 md:mb-0">My Budgets</h1>
-              <div className="flex gap-3 w-full md:w-auto">
+          <header className="mb-8 sm:mb-12">
+            {/* Flex container adapts for mobile */}
+            <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 md:gap-6 mb-6 md:mb-8">
+              <h1 className="text-2xl sm:text-3xl font-bold">My Budgets</h1>
+
+              <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
                 <input
                   type="text"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   placeholder="Search budgets..."
-                  className="px-5 py-3 rounded-xl border border-blue-200 focus:outline-none focus:ring-2 focus:ring-blue-400 transition w-full md:w-56 bg-white shadow-md text-lg"
+                  className="px-4 py-2 sm:px-5 sm:py-3 rounded-xl border border-blue-200 focus:outline-none focus:ring-2 focus:ring-blue-400 transition w-full sm:w-64 bg-white shadow-md text-base sm:text-lg"
                 />
                 <button
                   onClick={() => {
-                    setShowModal(true), setEditingBudget(false);
+                    setShowModal(true);
+                    setEditingBudget(false);
                   }}
-                  className="px-5 py-3 rounded-xl bg-gradient-to-r from-blue-500 to-blue-700 text-white font-bold shadow-lg hover:from-blue-600 hover:to-blue-800 transition text-lg"
+                  className="px-4 py-2 sm:px-5 sm:py-3 rounded-xl bg-gradient-to-r from-blue-500 to-blue-700 text-white font-bold shadow-lg hover:from-blue-600 hover:to-blue-800 transition text-base sm:text-lg"
                 >
                   + Add Budget
                 </button>
               </div>
             </div>
           </header>
-          <div className="grid md:grid-cols-2 gap-10">
+
+          {/* Grid adjusts for mobile */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 md:gap-10">
             {filteredBudgets.length > 0 ? (
               filteredBudgets.map((budget) => (
                 <div
                   key={budget.id}
-                  className="bg-white p-8 hover:shadow-2xl transition group rounded-2xl border border-gray-200 shadow-md"
+                  className="bg-white p-6 sm:p-8 hover:shadow-2xl transition group rounded-2xl border border-gray-200 shadow-md"
                 >
-                  <div className="flex items-center justify-between mb-4">
-                    <Link href={`/budgets/${budget.id}`} key={budget.id} className="underline hover:text-teal-700">
-                      <h2 className="text-2xl font-bold transition">
+                  {/* Card header */}
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 gap-3">
+                    <Link
+                      href={`/budgets/${budget.id}`}
+                      className="underline hover:text-teal-700"
+                    >
+                      <h2 className="text-xl sm:text-2xl font-bold">
                         {budget.name}
                       </h2>
                     </Link>
-
                     <div className="flex gap-3">
                       <Link
-                        href={`/budgets/${budget.id}`} key={budget.id}
+                        href={`/budgets/${budget.id}`}
                         className="text-teal-700 hover:text-green-700 transition"
                       >
-                        <FaEye size={28} />
+                        <FaEye size={22} className="sm:w-[28px] sm:h-[28px]" />
                       </Link>
                       <button
                         onClick={() => {
@@ -171,27 +179,35 @@ export default function Budget() {
                         }}
                         className="text-blue-500 hover:text-yellow-700 transition"
                       >
-                        <FaEdit size={24} />
+                        <FaEdit size={20} className="sm:w-[24px] sm:h-[24px]" />
                       </button>
                       <button
                         onClick={() => deleteBudget(budget.id)}
                         className="text-red-500 hover:text-red-700 transition"
                       >
-                        <FaTrash size={21} />
+                        <FaTrash
+                          size={18}
+                          className="sm:w-[21px] sm:h-[21px]"
+                        />
                       </button>
                     </div>
                   </div>
-                  <p className="text-gray-600 mb-6 text-lg">
+
+                  <p className="text-gray-600 mb-6 text-sm sm:text-lg">
                     {budget.description}
                   </p>
-                  <div className="flex items-center justify-between mb-4 gap-2">
-                    <span className="text-xl font-semibold text-gray-500 bg-blue-50 px-3 py-1 rounded-lg">
-                      Allocated: {currency}{budget.amount.toFixed(2)}
+
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 gap-2">
+                    <span className="text-base sm:text-xl font-semibold text-gray-500 bg-blue-50 px-3 py-1 rounded-lg">
+                      Allocated: {currency}
+                      {budget.amount.toFixed(2)}
                     </span>
                     <span className="text-sm font-medium text-gray-500 bg-gray-100 px-2 py-1 rounded-lg">
-                      Remaining: {currency}{(budget.amount - budget.spent).toFixed(2)}
+                      Remaining: {currency}
+                      {(budget.amount - budget.spent).toFixed(2)}
                     </span>
                   </div>
+
                   <div className="flex items-center gap-2">
                     <div className="w-full bg-gray-200 rounded-full h-3">
                       <div
@@ -200,8 +216,7 @@ export default function Budget() {
                           width: `${Math.min(
                             (budget.spent / budget.amount) * 100,
                             100
-                          )}%
-                          `,
+                          )}%`,
                         }}
                       />
                     </div>
@@ -218,29 +233,29 @@ export default function Budget() {
             )}
           </div>
         </div>
+
+        {/* Modal */}
         {showModal && (
-          <div className="fixed inset-0 bg-[rgba(0,0,0,0.91)] flex items-center justify-center z-50">
-            <div className="bg-white rounded-2xl p-8 shadow-2xl w-full max-w-lg border border-blue-100">
+          <div className="fixed inset-0 bg-[rgba(0,0,0,0.91)] flex items-center justify-center z-50 p-4">
+            <div className="bg-white rounded-2xl p-6 sm:p-8 shadow-2xl w-full max-w-lg border border-blue-100 max-h-[90vh] overflow-y-auto">
               <div className="flex items-center justify-between mb-6">
-                <h2 className="text-2xl font-bold text-blue-800">
+                <h2 className="text-xl sm:text-2xl font-bold text-blue-800">
                   {editingBudget ? "Edit Budget" : "Add New Budget"}
                 </h2>
                 <button
                   onClick={() => setShowModal(false)}
-                  className="bg-red-700 text-white rounded-full h-9 w-9 flex justify-center items-center font-bold text-xl shadow hover:bg-red-800 transition"
+                  className="bg-red-700 text-white rounded-full h-8 w-8 sm:h-9 sm:w-9 flex justify-center items-center font-bold text-lg sm:text-xl shadow hover:bg-red-800 transition"
                 >
                   ×
                 </button>
               </div>
-              <div>
-                <AddBudget
-                  onBudgetAdded={() => {
-                    fetchBudgets();
-                  }}
-                  editing={editingBudget}
-                  budgetToEdit={budgetToEdit}
-                />
-              </div>
+              <AddBudget
+                onBudgetAdded={() => {
+                  fetchBudgets();
+                }}
+                editing={editingBudget}
+                budgetToEdit={budgetToEdit}
+              />
             </div>
           </div>
         )}

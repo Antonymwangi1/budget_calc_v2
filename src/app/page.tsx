@@ -27,11 +27,11 @@ export default function Dashboard() {
   const [budgets, setBudgets] = useState<Budget[]>([]);
   const [expenses, setExpenses] = useState<Expenses[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
-  const [currency, setCurrency] = useState<string>("$")
+  const [currency, setCurrency] = useState<string>("$");
 
   useEffect(() => {
     fetchBudgets();
-    setCurrency(getCurrency())
+    setCurrency(getCurrency());
   }, []);
 
   useEffect(() => {
@@ -84,65 +84,73 @@ export default function Dashboard() {
 
   return (
     <ProtectedRoute>
-      <div className="max-w-5xl mx-auto mb-20 p-8 space-y-14">
-        <h1 className="text-4xl font-extrabold text-center text-blue-700 tracking-tight drop-shadow-sm">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-20 space-y-14">
+        {/* Title */}
+        <h1 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-center text-blue-700 tracking-tight drop-shadow-sm">
           Budget Dashboard
         </h1>
 
         {/* Summary */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
-          <div className="bg-gradient-to-r from-blue-100 to-blue-200 rounded-2xl p-8 text-center shadow-lg border border-blue-200">
-            <p className="text-base font-medium text-gray-600 mb-2">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 sm:gap-8">
+          <div className="bg-gradient-to-r from-blue-100 to-blue-200 rounded-2xl p-6 sm:p-8 text-center shadow-lg border border-blue-200">
+            <p className="text-sm sm:text-base font-medium text-gray-600 mb-2">
               Total Budgets
             </p>
-            <p className="text-4xl font-extrabold text-gray-800">
+            <p className="text-3xl sm:text-4xl font-extrabold text-gray-800">
               {totalBudgets}
             </p>
           </div>
-          <div className="bg-gradient-to-r from-teal-400 to-teal-500 rounded-2xl p-8 text-center shadow-lg border border-green-200">
-            <p className="text-base font-medium text-gray-600 mb-2">
+          <div className="bg-gradient-to-r from-teal-400 to-teal-500 rounded-2xl p-6 sm:p-8 text-center shadow-lg border border-green-200">
+            <p className="text-sm sm:text-base font-medium text-gray-600 mb-2">
               Total Spend
             </p>
-            <p className="text-4xl font-extrabold text-gray-800">
-              {currency}{totalSpend}
+            <p className="text-3xl sm:text-4xl font-extrabold text-gray-800">
+              {currency}
+              {totalSpend}
             </p>
           </div>
         </div>
 
         {/* Budgets and Chart */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 bg-gradient-to-br from-blue-50 via-white to-indigo-100 rounded-3xl shadow-xl border border-gray-200 p-8">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 bg-gradient-to-br from-blue-50 via-white to-indigo-100 rounded-3xl shadow-xl border border-gray-200 p-6 sm:p-8">
           {/* Budgets */}
           <div className="space-y-8">
-            <h2 className="text-2xl font-bold text-gray-800 mb-2 tracking-tight">
+            <h2 className="text-xl sm:text-2xl font-bold text-gray-800 mb-2 tracking-tight">
               Your Budgets
             </h2>
             {budgetWithSpending.slice(0, 2).map((b) => (
               <Link
                 href={`/budgets/${b.id}`}
                 key={b.id}
-                className="bg-white rounded-2xl border border-gray-200 p-6 shadow-md flex flex-col gap-3 hover:shadow-xl transition-shadow"
+                className="bg-white rounded-2xl border border-gray-200 p-4 sm:p-6 shadow-md flex flex-col gap-3 hover:shadow-xl transition-shadow"
               >
                 <div>
-                  <div className="flex justify-between items-center">
-                    <p className="text-lg font-semibold text-gray-700">
+                  <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-2">
+                    <p className="text-base sm:text-lg font-semibold text-gray-700">
                       {b.name}
                     </p>
-                    <p className="text-sm text-gray-500">
+                    <p className="text-xs sm:text-sm text-gray-500">
                       <span className="font-bold text-blue-600">
-                        {currency}{b.spent}
+                        {currency}
+                        {b.spent}
                       </span>{" "}
-                      / <span className="text-gray-700">${b.amount}</span> used
+                      /{" "}
+                      <span className="text-gray-700">
+                        {currency}
+                        {b.amount}
+                      </span>{" "}
+                      used
                     </p>
                   </div>
-                  <div className="w-full h-4 bg-gray-100 rounded-full overflow-hidden">
+                  <div className="w-full h-3 sm:h-4 bg-gray-100 rounded-full overflow-hidden">
                     <div
-                      className="h-4 bg-gradient-to-r from-teal-600 to-teal-500 rounded-full transition-all"
+                      className="h-full bg-gradient-to-r from-teal-600 to-teal-500 rounded-full transition-all"
                       style={{
                         width: `${Math.min((b.spent / b.amount) * 100, 100)}%`,
                       }}
                     />
                   </div>
-                  <div className="flex justify-between text-xs text-gray-400 mt-1">
+                  <div className="flex justify-between text-[10px] sm:text-xs text-gray-400 mt-1">
                     <span>Spent</span>
                     <span>Budget</span>
                   </div>
@@ -160,20 +168,20 @@ export default function Dashboard() {
           </div>
 
           {/* Pie Chart */}
-          <div className="bg-white p-8 rounded-2xl shadow-lg border border-gray-200 flex flex-col items-center">
-            <h2 className="text-xl font-bold mb-6 text-gray-700 tracking-tight">
+          <div className="bg-white p-4 sm:p-8 rounded-2xl shadow-lg border border-gray-200 flex flex-col items-center">
+            <h2 className="text-lg sm:text-xl font-bold mb-6 text-gray-700 tracking-tight">
               Spending Breakdown
             </h2>
             {budgetWithSpending.length === 0 || totalSpend === 0 ? (
               <p className="text-gray-400">No data to display</p>
             ) : (
-              <ResponsiveContainer width="100%" height={260}>
+              <ResponsiveContainer width="100%" height={240}>
                 <PieChart>
                   <Pie
                     data={budgetWithSpending}
                     dataKey="spent"
                     nameKey="name"
-                    outerRadius={90}
+                    outerRadius={80}
                     label={({ name }) => name}
                     labelLine={false}
                   >
@@ -191,14 +199,16 @@ export default function Dashboard() {
                 </PieChart>
               </ResponsiveContainer>
             )}
-            <div className="flex flex-wrap justify-center gap-4 mt-6">
+            <div className="flex flex-wrap justify-center gap-3 mt-6">
               {budgetWithSpending.map((b, idx) => (
-                <div key={b.id} className="flex items-center gap-2">
+                <div key={b.id} className="flex items-center gap-1 sm:gap-2">
                   <span
-                    className="inline-block w-3 h-3 rounded-full"
+                    className="inline-block w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full"
                     style={{ background: COLORS[idx % COLORS.length] }}
                   />
-                  <span className="text-sm text-gray-600">{b.name}</span>
+                  <span className="text-xs sm:text-sm text-gray-600">
+                    {b.name}
+                  </span>
                 </div>
               ))}
             </div>
