@@ -16,6 +16,8 @@ export default function SettingsPage() {
   const [currency, setCurrency] = useState<string>("");
   const { user } = useAuth();
   const [form, setForm] = useState({ name: "", email: "" });
+  const [oldPass, setOldPass] = useState<string>("");
+  const [newPass, setNewPass] = useState<string>("");
 
   useEffect(() => {
     if (user) {
@@ -49,6 +51,17 @@ export default function SettingsPage() {
       }
     }
   };
+
+  const handleUserPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      await axios.patch("/api/auth/updateUserPass", {oldPass, newPass})
+      alert("Password updated sucessfully")
+    } catch (error: any) {
+      console.error("Failed to update password:", error)
+      alert("Incorrect Password")
+    }
+  }
 
   return (
     <ProtectedRoute>
@@ -92,14 +105,19 @@ export default function SettingsPage() {
         {/* PASSWORD CHANGE */}
         <section className="mb-10 bg-white p-6 sm:p-8 rounded-2xl border border-gray-200 shadow-md">
           <h2 className="text-lg sm:text-xl mb-4 font-semibold">Change Password</h2>
-          <div className="space-y-4">
+          <form onSubmit={handleUserPassword}>
+            <div className="space-y-4">
             <input
               type="password"
+              onChange={(e) => setOldPass(e.target.value)}
+              value={oldPass}
               placeholder="Old password"
               className="border border-blue-200 rounded-xl p-3 w-full focus:outline-none focus:ring-2 focus:ring-blue-400 bg-blue-50"
             />
             <input
               type="password"
+              onChange={(e) => setNewPass(e.target.value)}
+              value={newPass}
               name="password"
               placeholder="New password"
               className="border border-blue-200 rounded-xl p-3 w-full focus:outline-none focus:ring-2 focus:ring-blue-400 bg-blue-50"
@@ -111,6 +129,7 @@ export default function SettingsPage() {
           >
             Change Password
           </button>
+          </form>
         </section>
 
         {/* CURRENCY SELECT */}
