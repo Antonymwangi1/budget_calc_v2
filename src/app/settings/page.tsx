@@ -2,7 +2,7 @@
 
 import ProtectedRoute from "@/components/ProtectedRoute";
 import { useAuth } from "@/context/AuthContext";
-import axios from "axios";
+import axios, { AxiosError } from "axios";
 import React, { useEffect, useState } from "react";
 
 const currencies = [
@@ -41,13 +41,15 @@ export default function SettingsPage() {
       await axios.patch("/api/auth/updateUser", form);
       alert("User updated successfully");
       window.location.reload();
-    } catch (err: any) {
-      if (err.response?.status === 409) {
-        alert("This email is already in use. Please choose another.");
-      } else if (err.response?.status === 400) {
-        alert("Name and email are required.");
-      } else {
-        alert("Something went wrong. Please try again.");
+    } catch (err: unknown) {
+      if (err instanceof AxiosError) {
+        if (err.response?.status === 409) {
+          alert("This email is already in use. Please choose another.");
+        } else if (err.response?.status === 400) {
+          alert("Name and email are required.");
+        } else {
+          alert("Something went wrong. Please try again.");
+        }
       }
     }
   };
@@ -55,13 +57,13 @@ export default function SettingsPage() {
   const handleUserPassword = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await axios.patch("/api/auth/updateUserPass", {oldPass, newPass})
-      alert("Password updated sucessfully")
+      await axios.patch("/api/auth/updateUserPass", { oldPass, newPass });
+      alert("Password updated sucessfully");
     } catch (error) {
-      console.error("Failed to update password:", error)
-      alert("Incorrect Password")
+      console.error("Failed to update password:", error);
+      alert("Incorrect Password");
     }
-  }
+  };
 
   return (
     <ProtectedRoute>
@@ -70,7 +72,9 @@ export default function SettingsPage() {
 
         {/* USER INFO FORM */}
         <section className="mb-6 bg-white p-6 sm:p-8 rounded-2xl border border-gray-200 shadow-md">
-          <h2 className="text-lg sm:text-xl mb-4 font-semibold">Account Info</h2>
+          <h2 className="text-lg sm:text-xl mb-4 font-semibold">
+            Account Info
+          </h2>
           <form className="space-y-4" onSubmit={changeUserInfo}>
             <div>
               <label className="block mb-1 text-sm font-medium">Username</label>
@@ -104,31 +108,33 @@ export default function SettingsPage() {
 
         {/* PASSWORD CHANGE */}
         <section className="mb-10 bg-white p-6 sm:p-8 rounded-2xl border border-gray-200 shadow-md">
-          <h2 className="text-lg sm:text-xl mb-4 font-semibold">Change Password</h2>
+          <h2 className="text-lg sm:text-xl mb-4 font-semibold">
+            Change Password
+          </h2>
           <form onSubmit={handleUserPassword}>
             <div className="space-y-4">
-            <input
-              type="password"
-              onChange={(e) => setOldPass(e.target.value)}
-              value={oldPass}
-              placeholder="Old password"
-              className="border border-blue-200 rounded-xl p-3 w-full focus:outline-none focus:ring-2 focus:ring-blue-400 bg-blue-50"
-            />
-            <input
-              type="password"
-              onChange={(e) => setNewPass(e.target.value)}
-              value={newPass}
-              name="password"
-              placeholder="New password"
-              className="border border-blue-200 rounded-xl p-3 w-full focus:outline-none focus:ring-2 focus:ring-blue-400 bg-blue-50"
-            />
-          </div>
-          <button
-            type="submit"
-            className="mt-4 w-full sm:w-auto px-4 py-2 bg-teal-600 hover:bg-teal-700 text-white rounded-lg transition"
-          >
-            Change Password
-          </button>
+              <input
+                type="password"
+                onChange={(e) => setOldPass(e.target.value)}
+                value={oldPass}
+                placeholder="Old password"
+                className="border border-blue-200 rounded-xl p-3 w-full focus:outline-none focus:ring-2 focus:ring-blue-400 bg-blue-50"
+              />
+              <input
+                type="password"
+                onChange={(e) => setNewPass(e.target.value)}
+                value={newPass}
+                name="password"
+                placeholder="New password"
+                className="border border-blue-200 rounded-xl p-3 w-full focus:outline-none focus:ring-2 focus:ring-blue-400 bg-blue-50"
+              />
+            </div>
+            <button
+              type="submit"
+              className="mt-4 w-full sm:w-auto px-4 py-2 bg-teal-600 hover:bg-teal-700 text-white rounded-lg transition"
+            >
+              Change Password
+            </button>
           </form>
         </section>
 

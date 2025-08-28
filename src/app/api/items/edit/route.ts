@@ -1,5 +1,4 @@
 import prisma from "@/lib/prisma";
-import { url } from "inspector";
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 
@@ -72,7 +71,7 @@ export async function PATCH(req: Request) {
   } catch (error: any) {
     console.error("Error editng item:", error);
     return NextResponse.json(
-      { error: error.message || "Internal server error" },
+      "Internal server error",
       { status: 500 }
     );
   }
