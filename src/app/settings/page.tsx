@@ -57,7 +57,7 @@ export default function SettingsPage() {
     try {
       await axios.patch("/api/auth/updateUserPass", {oldPass, newPass})
       alert("Password updated sucessfully")
-    } catch (error: any) {
+    } catch (error) {
       console.error("Failed to update password:", error)
       alert("Incorrect Password")
     }

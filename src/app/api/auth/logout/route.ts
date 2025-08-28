@@ -13,7 +13,7 @@ export async function POST(req: Request) {
     cookieStore.delete("session_id");
 
     return NextResponse.json({ message: "Logged out" });
-  } catch (error: any) {
+  } catch (error) {
     console.error("Failed to logout", error);
     return NextResponse.json({ error: "Server Error" }, { status: 500 });
   }

@@ -63,7 +63,7 @@ export async function POST(req: Request) {
 
     return res;
 
-  } catch (error: any) {
+  } catch (error) {
     console.error("Error registering user:", error);
     return NextResponse.json(
       { error: "Something went wrong" },

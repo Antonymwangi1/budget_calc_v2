@@ -25,7 +25,7 @@ const COLORS = ["#028090", "#114B5F", "#456990", "#F45B69", "#8B5CF6"];
 
 export default function Dashboard() {
   const [budgets, setBudgets] = useState<Budget[]>([]);
-  const [expenses, setExpenses] = useState<Expenses[]>([]);
+  const [expenses, setExpenses] = useState<Expenses[] | []>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [currency, setCurrency] = useState<string>("$");
 
