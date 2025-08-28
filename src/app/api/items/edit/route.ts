@@ -68,7 +68,7 @@ export async function PATCH(req: Request) {
     });
 
     return NextResponse.json(updatedItem, { status: 200 });
-  } catch (error: any) {
+  } catch (error) {
     console.error("Error editng item:", error);
     return NextResponse.json(
       "Internal server error",

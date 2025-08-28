@@ -51,7 +51,7 @@ export async function DELETE(req: Request) {
   } catch (error: any) {
     console.error("❌ Error deleting budget:", error);
     return NextResponse.json(
-      { error: error.message || "Internal server error" },
+      "Internal server error",
       { status: 500 }
     );
   }
