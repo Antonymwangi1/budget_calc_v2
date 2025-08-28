@@ -75,7 +75,7 @@ export default function AddItem() {
     try {
       await axios.delete(`/api/items/delete?itemId=${itemId}`);
       window.location.reload();
-    } catch (error: any) {
+    } catch (error) {
       console.error("❌ Delete request failed:", error);
     }
   };

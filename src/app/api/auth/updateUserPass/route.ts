@@ -51,10 +51,10 @@ export async function PATCH(req: Request) {
     });
 
     return NextResponse.json("Password updated successfully", { status: 200 });
-  } catch (error: any) {
+  } catch (error) {
     console.log("Failed to update user password:", error);
     return NextResponse.json(
-      { error: error.message || "Internal server error" },
+      "Internal server error",
       { status: 500 }
     );
   }

@@ -1,6 +1,6 @@
 "use client";
 
-import axios from "axios";
+import axios, { AxiosError } from "axios";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import React, { useState } from "react";
@@ -24,10 +24,13 @@ export default function RegisterPage() {
       const res = await axios.post("/api/auth/register", form);
       console.log("User registered successfully", res.data);
       router.push("/login");
-    } catch (err: any) {
-      setErrMsg(
-        err.response?.data?.message || "Registration failed. Please try again."
-      );
+    } catch (err: unknown) {
+      if (err instanceof AxiosError) {
+        setErrMsg(
+          err.response?.data?.message ||
+            "Registration failed. Please try again."
+        );
+      }
     } finally {
       setLoading(false);
     }
@@ -39,9 +42,7 @@ export default function RegisterPage() {
         <h1 className="text-center text-3xl sm:text-4xl font-bold">
           Create a New Account
         </h1>
-        <p className="text-center text-gray-500 mt-1">
-          Sign up to get started
-        </p>
+        <p className="text-center text-gray-500 mt-1">Sign up to get started</p>
 
         <form
           onSubmit={handleSubmit}

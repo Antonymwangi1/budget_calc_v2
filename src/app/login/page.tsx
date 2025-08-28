@@ -28,7 +28,7 @@ export default function LoginPage() {
     setErrMsg("");
     try {
       await login(form);
-    } catch (err: any) {
+    } catch (err) {
       setErrMsg("Invalid email or password");
       console.error(err);
     }
