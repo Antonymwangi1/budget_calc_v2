@@ -9,7 +9,7 @@ import Loader from "@/components/Loader";
 
 export default function LoginPage() {
   const router = useRouter();
-  const [form, setForm] = useState({ email: "", password: "" });
+  const [form, setForm] = useState({ email: "john@example.com", password: "1234" });
   const [errMsg, setErrMsg] = useState("");
   const [loadingUser, setLoadingUser] = useState(false)
   const { login, loading, user } = useAuth();
