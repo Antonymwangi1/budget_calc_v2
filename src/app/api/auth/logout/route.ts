@@ -5,7 +5,7 @@ import prisma from "@/lib/prisma"; // make sure you're importing prisma
 export async function POST(req: Request) {
   try {
     const cookieStore = cookies();
-    const sessionId = cookieStore.get("session_id")?.value;
+    const sessionId = (await cookieStore).get("session_id")?.value;
 
     if (sessionId) {
       await prisma.session.deleteMany({ where: { id: sessionId } });
