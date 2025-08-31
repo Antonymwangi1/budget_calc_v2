@@ -18,6 +18,7 @@ export default function SettingsPage() {
   const [form, setForm] = useState({ name: "", email: "" });
   const [oldPass, setOldPass] = useState<string>("");
   const [newPass, setNewPass] = useState<string>("");
+  const [loading, setLoading] = useState<boolean>(false)
 
   useEffect(() => {
     if (user) {
@@ -64,6 +65,19 @@ export default function SettingsPage() {
       alert("Incorrect Password");
     }
   };
+
+  const handleDeactivate = async () => {
+    setLoading(true)
+    try {
+      await axios.delete("/api/auth/deactivate")
+      alert("You've deactivated your account")
+      window.location.reload()
+    } catch (error) {
+      alert("Failed to deactivate account")
+    } finally {
+      setLoading(false)
+    }
+  }
 
   return (
     <ProtectedRoute>
@@ -160,8 +174,8 @@ export default function SettingsPage() {
           <h2 className="text-lg sm:text-xl mb-4 font-semibold text-red-500">
             Danger Zone
           </h2>
-          <button className="w-full sm:w-auto px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition">
-            Deactivate Account
+          <button onClick={handleDeactivate} className="w-full sm:w-auto px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition">
+            {loading ? "Deactivating Account..." : "Deactivate Account"}
           </button>
         </section>
       </main>

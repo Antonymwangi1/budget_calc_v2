@@ -11,6 +11,7 @@ export default function LoginPage() {
   const router = useRouter();
   const [form, setForm] = useState({ email: "", password: "" });
   const [errMsg, setErrMsg] = useState("");
+  const [loadingUser, setLoadingUser] = useState(false)
   const { login, loading, user } = useAuth();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -26,11 +27,14 @@ export default function LoginPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrMsg("");
+    setLoadingUser(true)
     try {
       await login(form);
     } catch (err) {
       setErrMsg("Invalid email or password");
       console.error(err);
+    } finally {
+      setLoadingUser(false)
     }
   };
 
@@ -112,7 +116,7 @@ export default function LoginPage() {
             type="submit"
             className="w-full bg-teal-600 text-white py-2.5 rounded-lg hover:bg-teal-700 transition font-medium"
           >
-            Login
+            {loadingUser ? "Login in..." : "Login"}
           </button>
         </form>
 
