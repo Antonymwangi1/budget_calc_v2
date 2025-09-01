@@ -90,7 +90,7 @@ export default function LoginPage() {
           </div>
 
           {/* Remember & Forgot */}
-          <div className="flex items-center justify-between text-sm">
+          {/* <div className="flex items-center justify-between text-sm">
             <label className="flex items-center gap-2">
               <input
                 type="checkbox"
@@ -104,7 +104,7 @@ export default function LoginPage() {
             >
               Forgot password?
             </Link>
-          </div>
+          </div> */}
 
           {/* Error message */}
           {errMsg && (
