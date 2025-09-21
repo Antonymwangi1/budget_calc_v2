@@ -2,7 +2,18 @@
 
 import { useEffect, useState } from "react";
 import ProtectedRoute from "@/components/ProtectedRoute";
-import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from "recharts";
+import {
+  LineChart,
+  Line,
+  Cell,
+  Tooltip,
+  ResponsiveContainer,
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  Legend,
+} from "recharts";
 import Link from "next/link";
 import axios from "axios";
 import { getCurrency } from "@/lib/settings";
@@ -18,7 +29,7 @@ type Expenses = {
   name: string;
   quantity: number;
   amount: number;
-  budgetId: string; // was number before
+  budgetId: string;
 };
 
 const COLORS = ["#028090", "#114B5F", "#456990", "#F45B69", "#8B5CF6"];
@@ -36,7 +47,7 @@ export default function Dashboard() {
 
   useEffect(() => {
     if (budgets.length > 0) {
-      fetchExpenses(budgets.map((b) => b.id)); // string[]
+      fetchExpenses(budgets.map((b) => b.id));
     }
   }, [budgets]);
 
@@ -60,7 +71,7 @@ export default function Dashboard() {
 
       const expensesArray = Array.isArray(response.data)
         ? response.data
-        : response.data.items; // <- changed to match your backend `items` key
+        : response.data.items;
 
       setExpenses(expensesArray);
     } catch (error) {
@@ -71,14 +82,16 @@ export default function Dashboard() {
   const totalBudgets = budgets.length;
   const totalSpend = budgets.reduce((sum, e) => sum + e.amount, 0);
 
-  // Combine budget and its total spent
+  // Combine budget with spent + remaining
   const budgetWithSpending = budgets.map((budget) => {
     const spent = (expenses ?? [])
       .filter((expense) => expense.budgetId === budget.id)
       .reduce((sum, e) => sum + e.amount, 0);
+
     return {
       ...budget,
       spent,
+      remaining: Number(Math.max(budget.amount - spent, 0).toFixed(2)),
     };
   });
 
@@ -167,28 +180,18 @@ export default function Dashboard() {
             </p>
           </div>
 
-          {/* Pie Chart */}
+          {/* Stacked Bar Chart */}
           <div className="bg-white p-4 sm:p-8 rounded-2xl shadow-lg border border-gray-200 flex flex-col items-center">
             <h2 className="text-lg sm:text-xl font-bold mb-6 text-gray-700 tracking-tight">
-              Spending Breakdown
+              Spent vs Remaining
             </h2>
-            {budgetWithSpending.length === 0 || totalSpend === 0 ? (
+            {budgetWithSpending.length === 0 ? (
               <p className="text-gray-400">No data to display</p>
             ) : (
-              <ResponsiveContainer width="100%" height={240}>
-                <PieChart>
-                  <Pie
-                    data={budgetWithSpending}
-                    dataKey="spent"
-                    nameKey="name"
-                    outerRadius={80}
-                    label={({ name }) => name}
-                    labelLine={false}
-                  >
-                    {budgetWithSpending.map((_, index) => (
-                      <Cell key={index} fill={COLORS[index % COLORS.length]} />
-                    ))}
-                  </Pie>
+              <ResponsiveContainer width="100%" height={300}>
+                <BarChart data={budgetWithSpending}>
+                  <XAxis dataKey="name" />
+                  <YAxis />
                   <Tooltip
                     contentStyle={{
                       borderRadius: "0.75rem",
@@ -196,22 +199,12 @@ export default function Dashboard() {
                       border: "none",
                     }}
                   />
-                </PieChart>
+                  <Legend />
+                  <Bar dataKey="spent" stackId="a" fill="#028090" />
+                  <Bar dataKey="remaining" stackId="a" fill="#8B5CF6" />
+                </BarChart>
               </ResponsiveContainer>
             )}
-            <div className="flex flex-wrap justify-center gap-3 mt-6">
-              {budgetWithSpending.map((b, idx) => (
-                <div key={b.id} className="flex items-center gap-1 sm:gap-2">
-                  <span
-                    className="inline-block w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full"
-                    style={{ background: COLORS[idx % COLORS.length] }}
-                  />
-                  <span className="text-xs sm:text-sm text-gray-600">
-                    {b.name}
-                  </span>
-                </div>
-              ))}
-            </div>
           </div>
         </div>
       </div>
