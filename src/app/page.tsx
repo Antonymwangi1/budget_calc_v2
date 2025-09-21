@@ -91,7 +91,7 @@ export default function Dashboard() {
     return {
       ...budget,
       spent,
-      remaining: Number(Math.max(budget.amount - spent, 0).toFixed(2)),
+      remaining: `$${Number(Math.max(budget.amount - spent, 0).toFixed(2))}`,
     };
   });
 
