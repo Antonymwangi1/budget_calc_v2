@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { use, useEffect, useState } from "react";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import {
   LineChart,

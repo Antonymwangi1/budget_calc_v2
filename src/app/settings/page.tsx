@@ -18,7 +18,8 @@ export default function SettingsPage() {
   const [form, setForm] = useState({ name: "", email: "" });
   const [oldPass, setOldPass] = useState<string>("");
   const [newPass, setNewPass] = useState<string>("");
-  const [loading, setLoading] = useState<boolean>(false)
+  const [loading, setLoading] = useState<boolean>(false);
+  const [showDeactivate, setShowDeactivate] = useState<boolean>(false);
 
   useEffect(() => {
     if (user) {
@@ -67,17 +68,17 @@ export default function SettingsPage() {
   };
 
   const handleDeactivate = async () => {
-    setLoading(true)
+    setLoading(true);
     try {
-      await axios.delete("/api/auth/deactivate")
-      alert("You've deactivated your account")
-      window.location.reload()
+      await axios.delete("/api/auth/deactivate");
+      alert("You've deactivated your account");
+      window.location.reload();
     } catch (error) {
-      alert("Failed to deactivate account")
+      alert("Failed to deactivate account");
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   return (
     <ProtectedRoute>
@@ -174,10 +175,36 @@ export default function SettingsPage() {
           <h2 className="text-lg sm:text-xl mb-4 font-semibold text-red-500">
             Danger Zone
           </h2>
-          <button onClick={handleDeactivate} className="w-full sm:w-auto px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition">
+          <button
+            onClick={() => setShowDeactivate(true)}
+            className="w-full sm:w-auto px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition"
+          >
             {loading ? "Deactivating Account..." : "Deactivate Account"}
           </button>
         </section>
+
+        {/* Modal */}
+        {showDeactivate && (
+          <div className="fixed inset-0 bg-[rgba(0,0,0,0.91)] flex items-center justify-center z-50 p-4">
+            <div className="bg-white rounded-2xl p-6 sm:p-8 shadow-2xl w-full max-w-lg border border-blue-100 max-h-[90vh] overflow-y-auto">
+              <p className="text-xl">Are you sure you want to deactivate this account?</p>
+              <div className="flex justify-between mt-4">
+                <button
+                  onClick={handleDeactivate}
+                  className="w-full sm:w-auto px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition"
+                >
+                  {loading ? "Deactivating Account..." : "Yes"}
+                </button>
+                <button
+                  onClick={() => setShowDeactivate(false)}
+                  className="w-full sm:w-auto px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition"
+                >
+                  No
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </main>
     </ProtectedRoute>
   );
